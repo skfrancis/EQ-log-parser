@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, String, Boolean
+from sqlalchemy import Table, Column, Integer, String, Boolean, DateTime
 
 
 class BuildTables:
@@ -9,7 +9,8 @@ class BuildTables:
     def _build_tables(self):
         Table(
             'logs', self._metadata,
-            Column('timestamp', String(50), primary_key=True),
+            Column('id', Integer, primary_key=True),
+            Column('timestamp', DateTime),
             Column('text', String(1000))
         )
         Table(
