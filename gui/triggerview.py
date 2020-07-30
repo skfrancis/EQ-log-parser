@@ -1,6 +1,5 @@
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QTreeView
-from pathlib import Path
 
 
 class TriggerView(QTreeView):
@@ -13,7 +12,6 @@ class TriggerView(QTreeView):
         tree_model = QStandardItemModel()
         self.setModel(tree_model)
         root_node = tree_model.invisibleRootItem()
-        path = Path.cwd() / 'img/Folder.png'
 
         test = QStandardItem()
 

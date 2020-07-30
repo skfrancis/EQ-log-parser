@@ -11,14 +11,15 @@ class BuildTables:
             'logs', self._metadata,
             Column('id', Integer, primary_key=True),
             Column('timestamp', DateTime),
-            Column('text', String(1000))
+            Column('text', String(500))
         )
         Table(
             'triggers', self._metadata,
-            Column('name', String(500), primary_key=True),
+            Column('name', String(250), primary_key=True),
             Column('search_text', String(500)),
             Column('alert_text', String(500)),
-            Column('use_audio', Boolean)
+            Column('use_audio', Boolean),
+            Column('audio_file', String(50))
         )
 
 
