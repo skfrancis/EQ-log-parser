@@ -15,7 +15,8 @@ class BuildTables:
         )
         Table(
             'triggers', self._metadata,
-            Column('name', String(250), primary_key=True),
+            Column('id', Integer, primary_key=True),
+            Column('name', String(250)),
             Column('search_text', String(500)),
             Column('alert_text', String(500)),
             Column('use_audio', Boolean),

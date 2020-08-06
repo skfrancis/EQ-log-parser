@@ -19,9 +19,10 @@ class TTS:
         file_path = str(file_path.resolve())
         playsound(file_path)
 
-    def convert(self, text):
+    def convert(self, text, file_name=None):
         tts = gTTS(text, lang='en')
-        file_name = md5(str(localtime()).encode('utf-8')).hexdigest() + SUFFIX
+        if not file_name:
+            file_name = md5(str(localtime()).encode('utf-8')).hexdigest() + SUFFIX
         file_path = self._path / file_name
         file_path = str(file_path.resolve())
         tts.save(file_path)

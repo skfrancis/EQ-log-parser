@@ -14,8 +14,9 @@ def line_parse(line):
 
 
 class Parser:
-    def __init__(self, log_file):
+    def __init__(self, log_file, alerter):
         self._log_file = Path(log_file)
+        self._alerter = alerter
 
     def open(self):
         parsed_data = []
@@ -34,5 +35,6 @@ class Parser:
                 if not line:
                     continue
                 data = line_parse(line)
-                print(data)
+                alert_text = self._alerter.search(data.get('text'))
+                print(data, alert_text)
 

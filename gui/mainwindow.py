@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QMainWindow
-from gui.triggerview import TriggerView
 
 
 class MainWindow(QMainWindow):
@@ -8,9 +7,8 @@ class MainWindow(QMainWindow):
         self.create_gui()
 
     def create_gui(self):
-        self.setGeometry(100, 100, 750, 750)
         self.setWindowTitle('EQ Parser')
-        self.setCentralWidget(TriggerView())
+        self.resize(750, 750)
         self.show()
 
 
