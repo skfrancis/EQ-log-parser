@@ -18,6 +18,7 @@ class BuildTables:
             Column('id', Integer, primary_key=True),
             Column('item_id', Integer, nullable=False, unique=True),
             Column('parent_id', Integer, nullable=False),
+            Column('is_group', Boolean),
             Column('name', String(250)),
             Column('search_text', String(500)),
             Column('alert_text', String(500)),
