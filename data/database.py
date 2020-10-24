@@ -19,15 +19,15 @@ class Database:
 
     def select(self, table, where_clause=None):
         db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)
-        self._db_engine.execute(db_table.select(whereclause=where_clause))
+        return self._db_engine.execute(db_table.select(whereclause=where_clause))
 
     def insert(self, table, data):
         db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)
-        self._db_engine.execute(db_table.insert(), data)
+        return self._db_engine.execute(db_table.insert(), data)
 
     def update(self, table, values, where_clause=None):
         db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)
-        self._db_engine.execute(db_table.update(whereclause=where_clause, values=values))
+        return self._db_engine.execute(db_table.update(whereclause=where_clause, values=values))
 
     def delete(self, table, where_clause=None):
         db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)

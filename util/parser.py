@@ -1,6 +1,7 @@
 from pathlib import Path
 from os import SEEK_END
 from datetime import datetime
+from gui.parserview import ParserView
 
 
 def line_parse(line):
@@ -14,9 +15,10 @@ def line_parse(line):
 
 
 class Parser:
-    def __init__(self, log_file, alerter):
+    def __init__(self, parent, log_file, alerter):
         self._log_file = Path(log_file)
         self._alerter = alerter
+        self.view = ParserView(parent, 2, ['timestamp', 'text'])
 
     def open(self):
         parsed_data = []
@@ -24,6 +26,7 @@ class Parser:
             for line in file:
                 data = line_parse(line)
                 if data:
+                    self.view.add_row(data)
                     parsed_data.append(data)
         return parsed_data
 
@@ -37,4 +40,5 @@ class Parser:
                 data = line_parse(line)
                 alert_text = self._alerter.search(data.get('text'))
                 print(data, alert_text)
+                self.view.add_row(data)
 
