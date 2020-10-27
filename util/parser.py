@@ -1,7 +1,7 @@
+from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
+from datetime import datetime
 from pathlib import Path
 from os import SEEK_END
-from datetime import datetime
-from gui.parserview import ParserView
 
 
 def line_parse(line):
@@ -14,31 +14,30 @@ def line_parse(line):
     return data
 
 
-class Parser:
-    def __init__(self, parent, log_file, alerter):
+class Parser(QObject):
+    finished = pyqtSignal()
+    data_ready = pyqtSignal(dict)
+
+    def __init__(self, log_file):
+        super().__init__()
         self._log_file = Path(log_file)
-        self._alerter = alerter
-        self.view = ParserView(parent, 2, ['timestamp', 'text'])
 
-    def open(self):
-        parsed_data = []
-        with self._log_file.open('r', encoding="utf8") as file:
-            for line in file:
-                data = line_parse(line)
-                if data:
-                    self.view.add_row(data)
-                    parsed_data.append(data)
-        return parsed_data
-
-    def watch(self):
+    @pyqtSlot()
+    def run(self):
         with self._log_file.open('r', encoding="utf8") as file:
             file.seek(0, SEEK_END)
+            # TODO: convert this while?
             while True:
                 line = file.readline()
                 if not line:
                     continue
                 data = line_parse(line)
-                alert_text = self._alerter.search(data.get('text'))
-                print(data, alert_text)
-                self.view.add_row(data)
+                print(data)
+                self.data_ready.emit(data)
+
+
+
+
+
+
 
