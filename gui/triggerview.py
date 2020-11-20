@@ -5,6 +5,8 @@ from gui.triggerdialog import TriggerDialog
 from gui.groupdialog import GroupDialog
 from gui.triggergroup import TriggerGroup
 from gui.triggeritem import TriggerItem
+from pathlib import Path
+from lxml import etree
 # Remove when done testing
 from PyQt5.QtWidgets import QApplication
 import sys
@@ -13,7 +15,9 @@ import sys
 class TriggerView(QTreeWidget):
     def __init__(self, parent):
         super().__init__(parent)
+        self._config_file = Path.cwd() / 'triggers.xml'
         self._root = self.invisibleRootItem()
+        self.importTree()
         self.create_gui()
 
     def create_gui(self):
@@ -26,9 +30,41 @@ class TriggerView(QTreeWidget):
         self.customContextMenuRequested.connect(self.open_menu)
         self.show()
 
-    def _clear_selection(self):
+    def clear_selection(self):
         self.setCurrentItem(self._root)
         self.clearSelection()
+
+    def importTree(self):
+        def build(item, parent):
+            for element in parent.getchildren():
+                tag = element.tag
+                data = dict(element.attrib)
+                data['id'] = tag
+                if tag == 'group':
+                    child = TriggerGroup(data)
+                else:
+                    child = TriggerItem(data)
+                item.addChild(child)
+                build(child, element)
+            item.setExpanded(True)
+        with open(self._config_file, 'rb') as file:
+            tree = etree.parse(file)
+            root = tree.getroot()
+            build(self._root, root)
+
+    def export_tree(self):
+        def build(item, parent):
+            for row in range(item.childCount()):
+                child = item.child(row)
+                data = child.data(0, QTreeWidgetItem.UserType)
+                tag = data.pop('id')
+                element = etree.SubElement(parent, tag, attrib=data)
+                build(child, element)
+        root = etree.Element('Triggers')
+        tree = etree.ElementTree(root)
+        build(self._root, root)
+        with open(self._config_file, 'wb') as file:
+            tree.write(file, encoding="utf-8", xml_declaration=True, pretty_print=True)
 
     @pyqtSlot()
     def open_item(self):
@@ -48,45 +84,44 @@ class TriggerView(QTreeWidget):
     @pyqtSlot()
     def add_group(self):
         item = self.currentItem()
-        # TODO: build new group
-        data = {'id': 0, 'name': '', 'search_text': '', 'alert_text': '', 'use_audio': False, 'audio_file': ''}
         if item:
-            dialog = GroupDialog(self, data)
+            dialog = GroupDialog(self, None)
             if dialog.exec():
                 if isinstance(item, TriggerGroup):
                     item.addChild(TriggerGroup(dialog.group_data))
                 else:
                     item.parent().addChild(TriggerGroup(dialog.group_data))
-            self._clear_selection()
+            self.clear_selection()
         else:
-            dialog = GroupDialog(self, data)
+            dialog = GroupDialog(self, None)
             if dialog.exec():
                 self.addTopLevelItem(TriggerGroup(dialog.group_data))
-                self._clear_selection()
+                self.clear_selection()
+        self.export_tree()
 
     @pyqtSlot()
     def add_trigger(self):
         item = self.currentItem()
-        # TODO: build new trigger
-        data = {'id': 0, 'name': '', 'search_text': '', 'alert_text': '', 'use_audio': False, 'audio_file': ''}
         if item:
-            dialog = TriggerDialog(self, data)
+            dialog = TriggerDialog(self, None)
             if dialog.exec():
                 if isinstance(item, TriggerGroup):
                     item.addChild(TriggerItem(dialog.trigger_data))
                 else:
                     item.parent().addChild(TriggerItem(dialog.trigger_data))
-                self._clear_selection()
+                self.clear_selection()
         else:
-            dialog = TriggerDialog(self, data)
+            dialog = TriggerDialog(self, None)
             if dialog.exec():
                 self.addTopLevelItem(TriggerItem(dialog.trigger_data))
-                self._clear_selection()
+                self.clear_selection()
+        self.export_tree()
 
     @pyqtSlot()
     def delete_item(self):
         for item in self.selectedItems():
             (item.parent() or self._root).removeChild(item)
+        self.export_tree()
 
     @pyqtSlot()
     def open_menu(self):
@@ -104,7 +139,7 @@ class TriggerView(QTreeWidget):
         add_delete.triggered.connect(self.delete_item)
         menu.addAction(add_edit)
         menu.addAction(add_delete)
-        menu.exec(QCursor.pos())
+        menu.exec(QCursor().pos())
 
 
 # Remove when done testing

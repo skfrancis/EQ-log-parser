@@ -22,7 +22,7 @@ class Parser(QObject):
         super().__init__()
         self._log_file = Path(log_file)
 
-    @pyqtSlot()
+    @pyqtSlot(name=None)
     def run(self):
         with self._log_file.open('r', encoding="utf8") as file:
             file.seek(0, SEEK_END)
@@ -31,9 +31,10 @@ class Parser(QObject):
                 line = file.readline()
                 if not line:
                     continue
-                data = line_parse(line)
-                print(data)
-                self.data_ready.emit(data)
+                else:
+                    data = line_parse(line)
+                    # print(data) # debugging purposes
+                    self.data_ready.emit(data)
 
 
 

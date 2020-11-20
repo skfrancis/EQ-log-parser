@@ -7,9 +7,12 @@ from PyQt5.QtCore import pyqtSlot
 class GroupDialog(QDialog):
     def __init__(self, parent, group_data):
         super().__init__(parent)
+        self._id = 'group'
         self.group_data = group_data
-        self._id = self.group_data.get('id')
-        self._name = QLineEdit(self.group_data.get('name'))
+        if group_data:
+            self._name = QLineEdit(self.group_data.get('name'))
+        else:
+            self._name = QLineEdit()
         self._button_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         self._button_box.accepted.connect(self.save)
         self._button_box.rejected.connect(self.reject)
@@ -30,6 +33,7 @@ class GroupDialog(QDialog):
     @pyqtSlot()
     def save(self):
         self.group_data = {
+            'id': self._id,
             'name': self._name.text()
         }
         self.accept()

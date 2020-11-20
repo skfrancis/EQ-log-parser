@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
 from PyQt5.QtCore import QThread
 from util.parser import Parser
 
@@ -22,6 +22,8 @@ class ParserView(QTableWidget):
 
     def create_gui(self):
         self.setColumnCount(self.columns)
+        header = self.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.setHorizontalHeaderLabels(self.column_names)
         self.setEditTriggers(QTableWidget.NoEditTriggers)
         self.show()

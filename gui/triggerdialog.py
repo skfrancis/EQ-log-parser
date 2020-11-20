@@ -7,14 +7,22 @@ from PyQt5.QtCore import pyqtSlot
 class TriggerDialog(QDialog):
     def __init__(self, parent, trigger_data):
         super().__init__(parent)
+        self._id = 'trigger'
         self.trigger_data = trigger_data
-        self._id = self.trigger_data.get('id')
-        self._name = QLineEdit(self.trigger_data.get('name'))
-        self._search_text = QLineEdit(self.trigger_data.get('search_text'))
-        self._alert_text = QLineEdit(self.trigger_data.get('alert_text'))
-        self._use_audio = QCheckBox()
-        self._use_audio.setChecked(self.trigger_data.get('use_audio'))
-        self._file_name = QLineEdit(self.trigger_data.get('file_name'))
+        if trigger_data:
+            self._name = QLineEdit(self.trigger_data.get('name'))
+            self._search_text = QLineEdit(self.trigger_data.get('search_text'))
+            self._alert_text = QLineEdit(self.trigger_data.get('alert_text'))
+            self._use_audio = QCheckBox()
+            self._use_audio.setChecked(eval(self.trigger_data.get('use_audio')))
+            self._file_name = QLineEdit(self.trigger_data.get('file_name'))
+        else:
+            self._name = QLineEdit()
+            self._search_text = QLineEdit()
+            self._alert_text = QLineEdit()
+            self._use_audio = QCheckBox()
+            self._use_audio.setChecked(False)
+            self._file_name = QLineEdit()
         self._button_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         self._button_box.accepted.connect(self.save)
         self._button_box.rejected.connect(self.reject)
@@ -38,10 +46,11 @@ class TriggerDialog(QDialog):
     @pyqtSlot()
     def save(self):
         self.trigger_data = {
+            'id': self._id,
             'name': self._name.text(),
             'search_text': self._search_text.text(),
             'alert_text': self._alert_text.text(),
-            'use_audio': self._use_audio.isChecked(),
+            'use_audio': str(self._use_audio.isChecked()),
             'file_name': self._file_name.text()
         }
         self.accept()
