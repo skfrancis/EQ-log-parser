@@ -8,6 +8,7 @@ class TriggerDialog(QDialog):
     def __init__(self, parent, trigger_data):
         super().__init__(parent)
         self._id = 'trigger'
+        self._path = self.parent().path / 'img'
         self.trigger_data = trigger_data
         if trigger_data:
             self._name = QLineEdit(self.trigger_data.get('name'))
@@ -30,7 +31,7 @@ class TriggerDialog(QDialog):
 
     def create_gui(self):
         self.setWindowTitle('Trigger Editor')
-        icon_path = Path.cwd() / 'img' / 'trigger.png'
+        icon_path = self._path / 'trigger.png'
         icon = QIcon(str(icon_path.resolve()))
         self.setWindowIcon(icon)
         form_layout = QFormLayout()

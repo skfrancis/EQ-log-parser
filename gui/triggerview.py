@@ -7,20 +7,19 @@ from gui.triggergroup import TriggerGroup
 from gui.triggeritem import TriggerItem
 from pathlib import Path
 from lxml import etree
-# Remove when done testing
-from PyQt5.QtWidgets import QApplication
-import sys
 
 
 class TriggerView(QTreeWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        self._config_file = Path.cwd() / 'triggers.xml'
+        self.path = Path.cwd()
+        self._config_file = self.path / 'triggers.xml'
         self._root = self.invisibleRootItem()
         self.importTree()
         self.create_gui()
 
     def create_gui(self):
+        print(self.path)
         self.setHeaderLabels(['Triggers'])
         self.setAlternatingRowColors(True)
         self.setColumnCount(1)
@@ -37,13 +36,12 @@ class TriggerView(QTreeWidget):
     def importTree(self):
         def build(item, parent):
             for element in parent.getchildren():
-                tag = element.tag
                 data = dict(element.attrib)
-                data['id'] = tag
+                data['id'] = element.tag
                 if tag == 'group':
-                    child = TriggerGroup(data)
+                    child = TriggerGroup(self.path, data)
                 else:
-                    child = TriggerItem(data)
+                    child = TriggerItem(self.path, data)
                 item.addChild(child)
                 build(child, element)
             item.setExpanded(True)
@@ -88,14 +86,14 @@ class TriggerView(QTreeWidget):
             dialog = GroupDialog(self, None)
             if dialog.exec():
                 if isinstance(item, TriggerGroup):
-                    item.addChild(TriggerGroup(dialog.group_data))
+                    item.addChild(TriggerGroup(self.path, dialog.group_data))
                 else:
-                    item.parent().addChild(TriggerGroup(dialog.group_data))
+                    item.parent().addChild(TriggerGroup(self.path, dialog.group_data))
             self.clear_selection()
         else:
             dialog = GroupDialog(self, None)
             if dialog.exec():
-                self.addTopLevelItem(TriggerGroup(dialog.group_data))
+                self.addTopLevelItem(TriggerGroup(self.path, dialog.group_data))
                 self.clear_selection()
         self.export_tree()
 
@@ -106,14 +104,14 @@ class TriggerView(QTreeWidget):
             dialog = TriggerDialog(self, None)
             if dialog.exec():
                 if isinstance(item, TriggerGroup):
-                    item.addChild(TriggerItem(dialog.trigger_data))
+                    item.addChild(TriggerItem(self.path, dialog.trigger_data))
                 else:
-                    item.parent().addChild(TriggerItem(dialog.trigger_data))
+                    item.parent().addChild(TriggerItem(self.path, dialog.trigger_data))
                 self.clear_selection()
         else:
             dialog = TriggerDialog(self, None)
             if dialog.exec():
-                self.addTopLevelItem(TriggerItem(dialog.trigger_data))
+                self.addTopLevelItem(TriggerItem(self.path, dialog.trigger_data))
                 self.clear_selection()
         self.export_tree()
 
@@ -140,10 +138,3 @@ class TriggerView(QTreeWidget):
         menu.addAction(add_edit)
         menu.addAction(add_delete)
         menu.exec(QCursor().pos())
-
-
-# Remove when done testing
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = TriggerView(None)
-    sys.exit(app.exec_())

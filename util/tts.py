@@ -1,30 +1,24 @@
-from gtts import gTTS
-from pathlib import Path
-from hashlib import md5
-from time import localtime
-from playsound import playsound
-
-SUFFIX = '.mp3'
-DIRECTORY = 'sounds'
+import pyttsx3
 
 
 class TTS:
     def __init__(self):
-        self._path = Path.cwd() / DIRECTORY
-        if not self._path.exists():
-            self._path.mkdir(parents=False)
+        self._engine = pyttsx3.init()
 
-    def play(self, file_name):
-        file_path = self._path / file_name
-        file_path = str(file_path.resolve())
-        playsound(file_path)
+    def play(self, text):
+        self._engine.say(text)
+        self._engine.runAndWait()
 
-    def convert(self, text, file_name=None):
-        tts = gTTS(text, lang='en')
-        if not file_name:
-            file_name = md5(str(localtime()).encode('utf-8')).hexdigest() + SUFFIX
-        file_path = self._path / file_name
-        file_path = str(file_path.resolve())
-        tts.save(file_path)
-        return file_name
+    def get_voices(self):
+        voices_data = self._engine.getProperty('voices')
+        voices = []
+        # noinspection PyTypeChecker
+        for voice_data in voices_data:
+            voices.append({
+                'id': voice_data.id,
+                'name': voice_data.name
+            })
+        return voices
 
+    def set_voice(self, voice_id):
+        self._engine.setProperty('voice', voice_id)

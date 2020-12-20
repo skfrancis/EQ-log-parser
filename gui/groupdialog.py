@@ -8,6 +8,7 @@ class GroupDialog(QDialog):
     def __init__(self, parent, group_data):
         super().__init__(parent)
         self._id = 'group'
+        self._path = self.parent().path / 'img'
         self.group_data = group_data
         if group_data:
             self._name = QLineEdit(self.group_data.get('name'))
@@ -20,7 +21,7 @@ class GroupDialog(QDialog):
 
     def create_gui(self):
         self.setWindowTitle('Group Editor')
-        icon_path = Path.cwd() / 'img' / 'folder.png'
+        icon_path = self._path / 'folder.png'
         icon = QIcon(str(icon_path.resolve()))
         self.setWindowIcon(icon)
         form_layout = QFormLayout()
