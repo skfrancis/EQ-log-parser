@@ -14,27 +14,28 @@ def line_parse(line):
     return data
 
 
-class Parser(QObject):
-    finished = pyqtSignal()
+class LogParser(QObject):
     data_ready = pyqtSignal(dict)
 
     def __init__(self, log_file):
         super().__init__()
         self._log_file = Path(log_file)
+        self._active = True
 
     @pyqtSlot()
     def run(self):
         with self._log_file.open('r', encoding="utf8") as file:
             file.seek(0, SEEK_END)
-            # TODO: convert this while?
-            while True:
+            while self._active:
                 line = file.readline()
-                if not line:
-                    continue
-                else:
+                if line:
                     data = line_parse(line)
-                    # print(data) # debugging purposes
                     self.data_ready.emit(data)
+
+    def stop(self):
+        self._active = False
+
+
 
 
 

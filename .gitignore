@@ -1,6 +1,7 @@
 /venv/
 /.idea/
+/config/triggers.xml
 /config.db
 /testing.py
-/sounds/
-/triggers.xml
+
+
