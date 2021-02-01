@@ -7,12 +7,12 @@ from pathlib import Path
 class TriggerGroup(QTreeWidgetItem):
     def __init__(self, path, group_data):
         super().__init__()
-        self._path = path / 'img'
+        self.path = path / 'img'
         self.setData(0, self.UserType, group_data)
         self.create_gui()
 
     def create_gui(self):
-        icon_path = self._path / 'folder.png'
+        icon_path = self.path / 'folder.png'
         icon = QIcon(str(icon_path.resolve()))
         self.setIcon(0, icon)
         self.setText(0, self.data(0, self.UserType).get('Name'))
@@ -23,12 +23,12 @@ class TriggerGroup(QTreeWidgetItem):
 class TriggerItem(QTreeWidgetItem):
     def __init__(self, path, trigger_data):
         super().__init__()
-        self._path = path / 'img'
+        self.path = path / 'img'
         self.setData(0, self.UserType, trigger_data)
         self.create_gui()
 
     def create_gui(self):
-        icon_path = self._path / 'trigger.png'
+        icon_path = self.path / 'trigger.png'
         icon = QIcon(str(icon_path.resolve()))
         self.setIcon(0, icon)
         self.setText(0, self.data(0, self.UserType).get('Name'))

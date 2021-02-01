@@ -1,20 +1,9 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
-from datetime import datetime
 from pathlib import Path
-from os import SEEK_END
+from util.logparser import line_parse
 
 
-def line_parse(line):
-    data = {}
-    if line.startswith('['):
-        line = line.rstrip("\n")
-        split_line = line.split('[', 1)[1].split('] ', 1)
-        data['timestamp'] = datetime.strptime(split_line[0], '%a %b %d %H:%M:%S %Y')
-        data['text'] = split_line[1]
-    return data
-
-
-class LogParser(QObject):
+class LogParserObject(QObject):
     data_ready = pyqtSignal(dict)
 
     def __init__(self, log_file):

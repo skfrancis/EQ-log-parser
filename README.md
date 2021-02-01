@@ -1,2 +1,4 @@
-# Triggers
-EQ Triggers
+# EQ Log Parser
+***************
+
+
