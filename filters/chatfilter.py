@@ -1,11 +1,11 @@
-import re
+import regex
 
 
 class ChatFilter:
     def __init__(self):
         self.regexes = [
-            re.compile(r"^(.+?) (?:say to your|told|tell your|tells the|tells?) (.+?),\s(?:in .+, )?\s?'(.+)'$"),
-            re.compile(r"^(.+?) (says? out of character|says?|shouts?|auctions?),\s(?:in .+, )?'(.+)'$")
+            regex.compile(r"^(.+?) (?:say to your|told|tell your|tells the|tells?) (.+?),\s(?:in .+, )?\s?'(.+)'$"),
+            regex.compile(r"^(.+?) (says? out of character|says?|shouts?|auctions?),\s(?:in .+, )?'(.+)'$")
         ]
 
     def parse(self, log_line):
@@ -27,8 +27,8 @@ class ChatFilter:
                 'debug': result_data.string
             }
 
-        for regex in self.regexes:
-            result = re.search(regex, log_line.get('text'))
+        for expression in self.regexes:
+            result = regex.search(expression, log_line.get('text'))
             if result:
                 return process_data(log_line.get('timestamp'), result)
 

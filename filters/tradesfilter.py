@@ -1,13 +1,13 @@
-import re
+import regex
 
 
 class TradesFilter:
     def __init__(self):
         self.regexes = [
-            re.compile(r"^(.+?) (have fashioned the items together to create [^:]+:) ([^.]+)\.$"),
-            re.compile(r"^(.+?) (lacked the skills to fashion) ([^.]+)\.$"),
-            re.compile(r"^(.+?) (has fashioned) ([^.]+)\.$"),
-            re.compile(r"^(.+?) (was not successful in making) ([^.]+)\.$")
+            regex.compile(r"^(.+?) (have fashioned the items together to create [^:]+:) ([^.]+)\.$"),
+            regex.compile(r"^(.+?) (lacked the skills to fashion) ([^.]+)\.$"),
+            regex.compile(r"^(.+?) (has fashioned) ([^.]+)\.$"),
+            regex.compile(r"^(.+?) (was not successful in making) ([^.]+)\.$")
         ]
 
     def parse(self, log_line):
@@ -25,8 +25,8 @@ class TradesFilter:
 
             }
 
-        for regex in self.regexes:
-            result = re.search(regex, log_line.get('text'))
+        for expression in self.regexes:
+            result = regex.search(expression, log_line.get('text'))
             if result:
                 return process_data(log_line.get('timestamp'), result)
 

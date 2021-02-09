@@ -1,10 +1,10 @@
-import re
+import regex
 
 
 class LocationFilter:
     def __init__(self):
         self.regexes = [
-            re.compile(r"^Your Location is (-?\d+.+?), (-?\d+.+?), (-?\d+.+?)$")
+            regex.compile(r"^Your Location is (-?\d+.+?), (-?\d+.+?), (-?\d+.+?)$")
         ]
 
     def parse(self, log_line):
@@ -18,8 +18,8 @@ class LocationFilter:
                 'debug': result_data.string
             }
 
-        for regex in self.regexes:
-            result = re.search(regex, log_line.get('text'))
+        for expression in self.regexes:
+            result = regex.search(expression, log_line.get('text'))
             if result:
                 return process_data(log_line.get('timestamp'), result)
 

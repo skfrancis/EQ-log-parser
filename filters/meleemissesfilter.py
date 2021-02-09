@@ -1,11 +1,11 @@
-import re
+import regex
 
 
 class MeleeMissesFilter:
     def __init__(self):
         self.regexes = [
-            re.compile(r"^(.+) \w+ to (\w+)(?: on)? (.+?), but .*?(miss|riposte|parry|parries|dodge|block|blocks"
-                       r" with \w\w\w shield|INVULNERABLE|magical skin absorbs the blow)e?s?!(?:\s\(([^\(\)]+)\))?$")
+            regex.compile(r"^(.+) \w+ to (\w+)(?: on)? (.+?), but .*?(miss|riposte|parry|parries|dodge|block|blocks"
+                          r" with \w\w\w shield|INVULNERABLE|magical skin absorbs the blow)e?s?!(?:\s\(([^\(\)]+)\))?$")
         ]
 
     def parse(self, log_line):
@@ -21,8 +21,8 @@ class MeleeMissesFilter:
                 'debug': result_data.string
             }
 
-        for regex in self.regexes:
-            result = re.search(regex, log_line.get('text'))
+        for expression in self.regexes:
+            result = regex.search(expression, log_line.get('text'))
             if result:
                 return process_data(log_line.get('timestamp'), result)
 

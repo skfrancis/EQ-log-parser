@@ -1,11 +1,11 @@
-import re
+import regex
 
 
 class CastingFilter:
     def __init__(self):
         self.regexes = [
-            re.compile(r"^(.+?) begins? (?:casting|singing) (.+)\.$"),
-            re.compile(r"^(.+?) activates? (.+)\.$"),
+            regex.compile(r"^(.+?) begins? (?:casting|singing) (.+)\.$"),
+            regex.compile(r"^(.+?) activates? (.+)\.$"),
         ]
 
     def parse(self, log_line):
@@ -18,8 +18,8 @@ class CastingFilter:
                 'debug': result_data.string
             }
 
-        for regex in self.regexes:
-            result = re.search(regex, log_line.get('text'))
+        for expression in self.regexes:
+            result = regex.search(expression, log_line.get('text'))
             if result:
                 return process_data(log_line.get('timestamp'), result)
 

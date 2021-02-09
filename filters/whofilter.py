@@ -1,18 +1,22 @@
 import regex
 
 
-class LootRotFilter:
+class WhoFilter:
     def __init__(self):
         self.regexes = [
-            regex.compile(r"^No one was interested in the .+: (.+)\. These items")
+            regex.compile(r"^[A-Z\s]*\[(?:(ANONYMOUS)|(?P<level>\d+) (?P<class>[\w\s]+)|(?P<lvl>\d+)"
+                          r" .+? \((?P<class>[\w\s]+)\))\] (?P<name>\w+)(?: \((?P<race>[\w\s]+)\))?")
         ]
 
     def parse(self, log_line):
         def process_data(timestamp, result_data):
             return {
                 'timestamp': timestamp,
-                'item': result_data.group(1),
-                'type': 'lootrot',
+                'name': result_data.group('name'),
+                'level': result_data.group('level'),
+                'class': result_data.group('class'),
+                'race': result_data.group('race'),
+                'type': 'who',
                 'debug': result_data.string
             }
 

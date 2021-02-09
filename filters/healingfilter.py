@@ -1,13 +1,15 @@
-import re
+import regex
 
 
 class HealingFilter:
     def __init__(self):
         self.regexes = [
-            re.compile(r"^(\w+) healed (.+?) over time for (\d+)(?: \((\d+)\))? hit points by (.+?)\.(?: \((.+?)\))?$"),
-            re.compile(r"^(\w+) ha(?:s|ve) been healed over time for (\d+)(?: \((\d+)\))?"
-                       r" hit points by (.+?)\.(?: \((.+?)\))?$"),
-            re.compile(r"^(.+?) healed (.+?) for (\d+)(?: \((\d+)\))? hit points(?: by (.+?))?\.(?: \((.+?)\))?$")
+            regex.compile(r"^(\w+) healed (.+?) over time for (\d+)(?: \((\d+)\))? hit points by (.+?)\."
+                          r"(?: \((?P<healmod>.+?)\))?$"),
+            regex.compile(r"^(\w+) ha(?:s|ve) been healed over time for (\d+) (?:\((\d+)\))? hit points by "
+                          r"(.+?)\.(?: \((.+?)\))?$"),
+            regex.compile(r"^(.+?) healed (.+?) for (\d+)(?: \((\d+)\))? hit points(?: by (.+?))?\."
+                          r"(?: \((?P<healmod>.+?)\))?$")
         ]
 
     def parse(self, log_line):
@@ -19,12 +21,13 @@ class HealingFilter:
                 'amount': result_data.group(3),
                 'original': result_data.group(4),
                 'spell': result_data.group(5),
+                'healmod': result_data.group('healmod'),
                 'type': 'healing',
                 'debug': result_data.string
             }
 
-        for regex in self.regexes:
-            result = re.search(regex, log_line.get('text'))
+        for expression in self.regexes:
+            result = regex.search(expression, log_line.get('text'))
             if result:
                 return process_data(log_line.get('timestamp'), result)
 
