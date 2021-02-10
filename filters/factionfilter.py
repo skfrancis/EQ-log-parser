@@ -1,21 +1,19 @@
 import regex
 
 
-class DeathFilter:
+class FactionFilter:
     def __init__(self):
         self.regexes = [
-            regex.compile(r"^(?P<target>.+) (?:have|has) been slain by (?P<source>.+)!$"),
-            regex.compile(r"^(?P<source>You) have slain (?P<target>.+)!$"),
-            regex.compile(r"^(?P<source>(?P<target>.+)) dies?d?\.$")
+            regex.compile(r"^Your faction standing with ([^.]+) has been adjusted by (-?\d+)\.$")
         ]
 
     def parse(self, log_line):
         def process_data(timestamp, result_data):
             return {
                 'timestamp': timestamp,
-                'source': result_data.group('source'),
-                'target': result_data.group('target'),
-                'type': 'death',
+                'faction': result_data.group(1),
+                'amount': result_data.group(2),
+                'type': 'faction',
                 'debug': result_data.string
             }
 

@@ -9,7 +9,7 @@ class MeleeHitsFilter:
                           r" (?!by non-melee)(?P<target>.+?) for (?P<amount>\d+) points? of damage"
                           r"\.(?: \((?P<dmgmod>[\w\s]+)\))?$"),
             regex.compile(r"^(?P<target>.+?) is \w+ by (?P<source>.+?) \w+ for (?P<amount>\d+) points? of "
-                          r"(?P<damage>non-melee) damage\.$")
+                          r"(?P<damage>non-melee) damage\.(?: \((?P<dmgmod>[\w\s]+)\))?$")
 
         ]
 
