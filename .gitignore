@@ -1,6 +1,6 @@
 /venv/
 /.idea/
-/config/triggers.xml
+/config/
 /config.db
 /testing.py
 

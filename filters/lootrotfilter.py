@@ -4,7 +4,8 @@ import regex
 class LootRotFilter:
     def __init__(self):
         self.regexes = [
-            regex.compile(r"^No one was interested in the .+: (.+)\. These items")
+            regex.compile(r"^No one was interested in the .+: (.+)\. These items"),
+            regex.compile(r"^--\w+ left (?:an?|\d+) ([^.]+) on [^.]+?\s?\.--$")
         ]
 
     def parse(self, log_line):
