@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 from pathlib import Path
-from util.logparser import line_parse
+from util.lineparse import line_parse
+from os import SEEK_END
 
 
 class LogParserObject(QObject):
@@ -23,12 +24,3 @@ class LogParserObject(QObject):
 
     def stop(self):
         self._active = False
-
-
-
-
-
-
-
-
-

@@ -5,7 +5,6 @@ from pathlib import Path
 from gui.TriggerWindow.triggerview import TriggerView
 from gui.ParserWindow.logparserview import LogParserView
 from gui.ParserWindow.logparseobject import LogParserObject
-from util.logparser import LogParser
 
 
 class MainWindow(QMainWindow):
@@ -15,7 +14,7 @@ class MainWindow(QMainWindow):
 
         self.path = Path.cwd()
         self.log_path = Path('d:/Games/Steam/steamapps/common/Everquest F2P/Logs')
-        self.log_file = self.log_path / 'eqlog_Rarshaak_aradune.txt'
+        self.log_file = self.log_path / 'eqlog_Sithraak_aradune.txt'
         self.log_parser = LogParserObject(self.log_file)
         self.log_thread = self.create_log_parser_thread()
         self.log_view = LogParserView(self)

@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 
-# Parse assumes log file line format ofx: [Sat Sep 19 00:08:48 2020] Welcome to EverQuest!
+# Parse assumes log file line format of: [Sat Sep 19 00:08:48 2020] Welcome to EverQuest!
 def line_parse(line):
     data = {}
     if line.startswith('[') and line.find(']') != -1:
