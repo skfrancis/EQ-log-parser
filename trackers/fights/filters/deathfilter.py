@@ -1,11 +1,12 @@
 import regex
 
 
-class SpellMissesFilter:
+class DeathFilter:
     def __init__(self):
         self.regexes = [
-            regex.compile(r"^(?P<target>.+) resisted (?P<source>you)r (?P<spell>.+?)!$"),
-            regex.compile(r"^(?P<target>You) resist (?P<source>.+?)'s (?P<spell>.+)!$")
+            regex.compile(r"^(?P<target>.+) (?:have|has) been slain by (?P<source>.+)!$"),
+            regex.compile(r"^(?P<source>You) have slain (?P<target>.+)!$"),
+            regex.compile(r"^(?P<source>(?P<target>.+)) dies?d?\.$")
         ]
 
     def parse(self, log_line):
@@ -14,8 +15,9 @@ class SpellMissesFilter:
                 'timestamp': timestamp,
                 'source': result_data.group('source'),
                 'target': result_data.group('target'),
-                'spell': result_data.group('spell'),
-                'type': 'resist',
+                'amount': 'death',
+                'attack': None,
+                'damagemod': None,
                 'debug': result_data.string
             }
 

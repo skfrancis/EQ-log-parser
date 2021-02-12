@@ -10,6 +10,9 @@ To Do List:
 * Spell Data
     * spells_us.txt
     * spells_us_str.txt
-    
+* Trackers
+    * Fights - (Started)
+    * Looting
+    * Experience
 
 
