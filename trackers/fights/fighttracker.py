@@ -12,14 +12,13 @@ class FightTracker:
         current_member = None
         result = self.fight_event.parse(log_line)
         if result:
-            source = result.pop('source')
-            target = result.pop('target')
+            source = result.get('source')
             for member in self.members:
                 if source in member.get_name():
                     current_member = member
                     break
             if not current_member:
-                current_member = FightMember(source, target)
+                current_member = FightMember(source)
                 self.members.append(current_member)
 
             amount = result.get('amount')
@@ -33,12 +32,5 @@ class FightTracker:
     def _complete_fight(self):
         fight = []
         for member in self.members:
-            fight.append(
-                {
-                    'member': member.get_name(),
-                    'target': member.get_target(),
-                    'hits': pd.DataFrame(member.hits),
-                    'misses': pd.DataFrame(member.misses)
-                }
-            )
+            fight.append(member.get_fight_data())
         return fight
