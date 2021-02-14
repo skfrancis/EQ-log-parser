@@ -1,16 +1,5 @@
 import re
-
-
-def return_data(timestamp, result_data):
-    return {
-        'timestamp': timestamp,
-        'source': result_data.group('source').replace('YOUR', 'You'),
-        'target': result_data.group('target').replace('YOU', 'You'),
-        'amount': result_data.group('amount'),
-        'attack': result_data.group('dmgtype'),
-        'damagemod': result_data.group('dmgmod'),
-        'debug': result_data.string
-    }
+from pprint import pprint
 
 
 def search_data(expression, log_line):
@@ -18,7 +7,8 @@ def search_data(expression, log_line):
 
 
 class MeleeFilter:
-    def __init__(self):
+    def __init__(self, display=False):
+        self.display = display
         self.hits_regex = [
             re.compile(r"^(?P<source>.+?) (?P<dmgtype>\bhit|shoot|kick|slash|crush|pierce|bash|slam|strike|"
                        r"punch|backstab|bite|claw|smash|slice|gore|maul|rend|burn|sting|frenzy on|frenzies on\b)e?s?"
@@ -36,17 +26,40 @@ class MeleeFilter:
         ]
 
     def parse(self, log_line):
+        def return_data(timestamp, result_data):
+            return {
+                'timestamp': timestamp,
+                'source': result_data.group('source').replace('YOUR', 'You'),
+                'target': result_data.group('target').replace('YOU', 'You'),
+                'amount': result_data.group('amount'),
+                'attack': result_data.group('dmgtype'),
+                'damagemod': result_data.group('dmgmod'),
+                'debug': result_data.string
+            }
+
+        def display_data(data):
+            pprint(data)
+
         result = self._hits_data(log_line)
         if result:
-            return return_data(log_line.get('timestamp'), result)
+            parsed = return_data(log_line.get('timestamp'), result)
+            if self.display:
+                display_data(parsed)
+            return parsed
 
         result = self._ds_data(log_line)
         if result:
-            return return_data(log_line.get('timestamp'), result)
+            parsed = return_data(log_line.get('timestamp'), result)
+            if self.display:
+                display_data(parsed)
+            return parsed
 
         result = self._misses_data(log_line)
         if result:
-            return return_data(log_line.get('timestamp'), result)
+            parsed = return_data(log_line.get('timestamp'), result)
+            if self.display:
+                display_data(parsed)
+            return parsed
 
         return None
 

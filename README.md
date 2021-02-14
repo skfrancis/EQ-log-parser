@@ -19,7 +19,6 @@ Planned Functionality
 To Do List
 -----------
 * Filters
-    * Coin looted
     * Randoms
     * Unwanted text (Spam log)
     * Dot Damage unknown source

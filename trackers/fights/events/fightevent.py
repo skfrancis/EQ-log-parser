@@ -12,15 +12,12 @@ class FightEvent:
     def parse(self, log_line):
         result = self.melee_filter.parse(log_line)
         if result:
-            # print(result.pop('debug'))
             return result
         result = self.spell_filter.parse(log_line)
         if result:
-            # print(result.pop('debug'))
             return result
         result = self.death_filter.parse(log_line)
         if result:
-            # print(result.pop('debug'))
             return result
 
         return None

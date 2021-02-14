@@ -2,24 +2,23 @@ import re
 from pprint import pprint
 
 
-class DeathFilter:
+class EXPFilter:
     def __init__(self, display=False):
         self.display = display
         self.regexes = [
-            re.compile(r"^(?P<target>.+) (?:have|has) been slain by (?P<source>.+)!$"),
-            re.compile(r"^(?P<source>You) have slain (?P<target>.+)!$"),
-            re.compile(r"^(?P<source>(?P<target>.+)) dies?d?\.$")
+            re.compile(r"^You gaine?d? (experience|party|raid)")
         ]
 
     def parse(self, log_line):
         def process_data(timestamp, result_data):
+            if result_data.group(1) == 'experience':
+                exptype = 'solo'
+            else:
+                exptype = result_data.group(1)
             return {
                 'timestamp': timestamp,
-                'source': result_data.group('source'),
-                'target': result_data.group('target'),
-                'amount': 'death',
-                'attack': None,
-                'damagemod': None,
+                'exptype': exptype,
+                'type': 'exp',
                 'debug': result_data.string
             }
 
@@ -33,5 +32,5 @@ class DeathFilter:
                 if self.display:
                     display_data(parsed)
                 return parsed
-        return None
 
+        return None

@@ -1,22 +1,19 @@
 import regex
 
 
-class EXPFilter:
+class ExpAAFilter:
     def __init__(self):
         self.regexes = [
-            regex.compile(r"^You gaine?d? (experience|party|raid)")
+            regex.compile(r"^You have gained (\d+) ability point\(s\)!\s+You now have (\d+) ability point\(s\).$")
         ]
 
     def parse(self, log_line):
         def process_data(timestamp, result_data):
-            if result_data.group(1) == 'experience':
-                exptype = 'solo'
-            else:
-                exptype = result_data.group(1)
             return {
                 'timestamp': timestamp,
-                'exptype': exptype,
-                'type': 'exp',
+                'gained': result_data.group(1),
+                'banked': result_data.group(2),
+                'type': 'aaexp',
                 'debug': result_data.string
             }
 
