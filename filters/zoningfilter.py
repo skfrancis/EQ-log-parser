@@ -1,8 +1,10 @@
-import regex
+import re
+from pprint import pprint
 
 
 class ZoningFilter:
-    def __init__(self):
+    def __init__(self, display=False):
+        self.display = display
         self.non_zones = [
             'an area where levitation effects do not function',
             'an Arena (PvP) area',
@@ -10,7 +12,7 @@ class ZoningFilter:
             'the Drunken Monkey stance adequately'
         ]
         self.regexes = [
-            regex.compile(r"^You have entered (.+)\.$")
+            re.compile(r"^You have entered (.+)\.$")
         ]
 
     def parse(self, log_line):
@@ -20,14 +22,18 @@ class ZoningFilter:
                     return None
             return {
                 'timestamp': timestamp,
-                'Zone': result_data.group(1),
-                'type': 'zoning',
+                'zone': result_data.group(1),
                 'debug': result_data.string
             }
 
-        for expression in self.regexes:
-            result = regex.search(expression, log_line.get('text'))
-            if result:
-                return process_data(log_line.get('timestamp'), result)
+        def display_data(data):
+            pprint(data)
 
+        for expression in self.regexes:
+            result = re.search(expression, log_line.get('text'))
+            if result:
+                parsed = process_data(log_line.get('timestamp'), result)
+                if self.display:
+                    display_data(parsed)
+                return parsed
         return None

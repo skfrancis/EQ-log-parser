@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QTreeWidget, QMenu, QTreeWidgetItem, QAction
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QCursor
-from gui.TriggerWindow.triggerdialogs import GroupDialog, TriggerDialog
-from gui.TriggerWindow.triggeritems import TriggerGroup, TriggerItem
+from gui.widgets.triggers.triggerdialogs import GroupDialog, TriggerDialog
+from gui.widgets.triggers.triggeritems import TriggerGroup, TriggerItem
 from pathlib import Path
 from lxml import etree
 

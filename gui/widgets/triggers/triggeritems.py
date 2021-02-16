@@ -12,7 +12,7 @@ class TriggerGroup(QTreeWidgetItem):
         self.create_gui()
 
     def create_gui(self):
-        icon_path = self.path / 'folder.png'
+        icon_path = self.path / 'group.png'
         icon = QIcon(str(icon_path.resolve()))
         self.setIcon(0, icon)
         self.setText(0, self.data(0, self.UserType).get('Name'))

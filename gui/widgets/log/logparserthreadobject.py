@@ -4,7 +4,7 @@ from util.lineparse import line_parse
 from os import SEEK_END
 
 
-class LogParserObject(QObject):
+class LogParserThreadObject(QObject):
     data_ready = pyqtSignal(dict)
 
     def __init__(self, log_file):

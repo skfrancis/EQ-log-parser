@@ -65,7 +65,7 @@ class GroupDialog(QDialog):
 
     def create_gui(self):
         self.setWindowTitle('Group Editor')
-        icon_path = self.path / 'folder.png'
+        icon_path = self.path / 'group.png'
         icon = QIcon(str(icon_path.resolve()))
         self.setWindowIcon(icon)
         form_layout = QFormLayout()
