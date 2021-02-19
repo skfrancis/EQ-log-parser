@@ -1,11 +1,19 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QStatusBar, QLabel, QWidget
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QStatusBar, QLabel, QWidget, QTabWidget, QMenu, QAction
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSlot
 from pathlib import Path
+import json
 from gui.parseview import ParseView
 from filters.logparserfilter import LogParserFilter
+
+from filters.considerfilter import ConsiderFilter
+from filters.factionfilter import FactionFilter
+from filters.locationfilter import LocationFilter
+from filters.systemmessagefilter import SystemMessageFilter
 from filters.zoningfilter import ZoningFilter
+
 from gui.widgets.triggers.triggerview import TriggerView
+from gui.widgets.settings.settingsdialog import SettingsDialog
 from gui.widgets.log.logparserthreadobject import LogParserThreadObject
 
 
@@ -13,31 +21,92 @@ class MainWindow(QMainWindow):
     def __init__(self, app):
         super().__init__()
         self.app = app
-
         self.path = Path.cwd()
-        self.log_path = Path('d:/Games/Steam/steamapps/common/Everquest F2P/Logs')
-        self.log_file = self.log_path / 'eqlog_Sithraak_aradune.txt'
-        self.log_parser = LogParserThreadObject(self.log_file)
+        self.settings_path = self.path / 'config'
+        self.settings_data = self.load_settings()
+        self.game_path = Path(self.settings_data.get('game_directory', ''))
+        self.log_parser = None
+        self.log_thread = self.create_log_parser()
         self.log_filter = LogParserFilter()
-        self.log_thread = self.create_log_parser_thread()
         self.log_view = ParseView(self, self.log_filter.get_config())
-
-        self.status_bar = QStatusBar()
-
+        self.filters = []
+        self.create_parse_filters()
+        self.views = []
+        self.create_parse_views()
+        self.tabs_widget = QTabWidget()
         self.zone_filter = ZoningFilter()
         self.zone_label = QLabel('Current Zone: {}'.format(None))
-
-        self.status_bar.addPermanentWidget(self.zone_label)
+        self.log_thread.start()
+        self.create_menu_bar()
+        self.create_status_bar()
         self.create_gui()
 
-    def create_log_parser_thread(self):
+    def load_settings(self):
+        def load_data(file_name):
+            json_data = {}
+            if file_name.exists():
+                with file_name.open() as file:
+                    json_data = json.load(file)
+                    file.close()
+                    return json_data
+            return json_data
+
+        settings_file = self.settings_path / 'settings.json'
+        return load_data(settings_file)
+
+    def open_settings(self):
+        dialog = SettingsDialog(self, self.settings_data)
+        if dialog.exec():
+            self.save_settings(dialog.settings_data)
+            self.settings_data = dialog.settings_data
+
+    def save_settings(self, settings_data):
+        settings_file = self.settings_path / 'settings.json'
+        with settings_file.open('w') as file:
+            json.dump(settings_data, file, indent=4)
+            file.close()
+
+    def create_log_parser(self):
         thread = QThread()
-        self.log_parser = LogParserThreadObject(self.log_file)
-        self.log_parser.data_ready.connect(self.process_log_data)
-        self.log_parser.moveToThread(thread)
-        thread.started.connect(self.log_parser.run)
-        thread.start()
+        log_path = self.game_path / 'Logs'
+        log_file = log_path / self.settings_data.get('log_file', '')
+        if log_file.exists():
+            self.log_parser = LogParserThreadObject(log_file)
+            self.log_parser.data_ready.connect(self.process_log_data)
+            self.log_parser.moveToThread(thread)
+            thread.started.connect(self.log_parser.run)
         return thread
+
+    def create_parse_filters(self):
+        self.filters.append(ConsiderFilter())
+        self.filters.append(FactionFilter())
+        self.filters.append(LocationFilter())
+        self.filters.append(SystemMessageFilter())
+
+    def create_parse_views(self):
+        for filter_name in self.filters:
+            self.views.append(ParseView(self, filter_name.get_config()))
+
+    def create_tab_view(self):
+        for view_name in self.views:
+            self.tabs_widget.addTab(view_name, 'Tab')
+
+    def create_menu_bar(self):
+        menu_bar = self.menuBar()
+        file_menu = QMenu('File', self)
+        settings_action = QAction('Settings', self)
+        settings_action.triggered.connect(self.open_settings)
+        exit_action = QAction('Exit', self)
+        exit_action.triggered.connect(self.close_event)
+        file_menu.addAction(settings_action)
+        file_menu.addAction(exit_action)
+        help_menu = QMenu('Help', self)
+        menu_bar.addMenu(file_menu)
+        menu_bar.addMenu(help_menu)
+
+    def create_status_bar(self):
+        status_bar = self.statusBar()
+        status_bar.addPermanentWidget(self.zone_label)
 
     def create_gui(self):
         self.setWindowTitle('EQ Parser')
@@ -46,19 +115,27 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(icon)
         triggers = TriggerView(self)
         layout = QVBoxLayout()
-        layout.addWidget(triggers)
+        self.tabs_widget.addTab(triggers, 'Triggers')
+        self.create_tab_view()
+        layout.addWidget(self.tabs_widget)
         layout.addWidget(self.log_view)
         main_widget = QWidget()
         main_widget.setLayout(layout)
         self.setCentralWidget(main_widget)
-        self.setStatusBar(self.status_bar)
         self.resize(950, 350)
         self.show()
 
     def process_log_data(self, data):
+        for filter_name in self.filters:
+            if filter_name.parse(data):
+                index = self.filters.index(filter_name)
+                self.views[index].display_row(filter_name.parse(data))
         self.update_current_zone(self.zone_filter.parse(data))
         self.log_view.display_row(self.log_filter.parse(data))
 
     def update_current_zone(self, zone_data):
         if zone_data:
             self.zone_label.setText('Current Zone: {}'.format(zone_data.get('zone')))
+
+    def close_event(self):
+        self.close()

@@ -16,6 +16,9 @@ class ZoningFilter:
         ]
 
     def parse(self, log_line):
+        def display_data(data):
+            pprint(data)
+
         def process_data(timestamp, result_data):
             for non_zone in self.non_zones:
                 if non_zone in result_data.group(1):
@@ -25,9 +28,6 @@ class ZoningFilter:
                 'zone': result_data.group(1),
                 'debug': result_data.string
             }
-
-        def display_data(data):
-            pprint(data)
 
         for expression in self.regexes:
             result = re.search(expression, log_line.get('text'))

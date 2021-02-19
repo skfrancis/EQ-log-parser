@@ -1,43 +1,46 @@
 from PyQt5.QtWidgets import QDialog, QLineEdit, QComboBox, QLabel, QDial, QFormLayout, QHBoxLayout
-from PyQt5.QtWidgets import QPushButton, QFileDialog
+from PyQt5.QtWidgets import QPushButton, QFileDialog, QDialogButtonBox
 from PyQt5.QtCore import Qt, QDir, pyqtSlot
 from PyQt5.QtGui import QIcon
 from pathlib import Path
 from util.tts import TTS
 import re
-# TODO: Remove when done testing
-from PyQt5.QtWidgets import QApplication
-import sys
 
 
-# TODO: Populate Values correctly on opening
-class CharacterDialog(QDialog):
-    def __init__(self, parent, character_data):
+class SettingsDialog(QDialog):
+    def __init__(self, parent, settings_data):
         super().__init__(parent)
-        self.character_data = character_data
+        self.settings_data = settings_data
         self.tts = TTS()
         self.voice_data = self.tts.get_voices()
         voice_names = [item['name'] for item in self.voice_data]
-        # self.path = self.parent().path / 'img'
-        self.path = Path("D:\Projects\EQ-log-parser\img")
-        self.game_directory = QLineEdit(self.character_data.get('game_directory', ''))
+        self.path = self.parent().path / 'img'
+        self.game_directory = QLineEdit(self.settings_data.get('game_directory', ''))
         self.directory_button = QPushButton()
         self.log_file = QComboBox()
-        # self.log_file = QLineEdit(self.character_data.get('Log_file', ''))
-        self.server_name = QLineEdit(self.character_data.get('server_name', ''))
-        self.character = QLineEdit(self.character_data.get('character', ''))
+        self.populate_log_files()
+        self.log_file.setCurrentText(self.settings_data.get('log_file', ''))
+        self.server_name = QLineEdit(self.settings_data.get('server_name', ''))
+        self.character = QLineEdit(self.settings_data.get('character', ''))
         self.voices = QComboBox()
         self.voices.addItems(voice_names)
+        self.voices.setCurrentText(self.settings_data.get('voice', ''))
+        self.update_voice()
         self.volume = QDial()
         self.volume.setRange(0, 100)
-        self.volume.setValue(self.character_data.get('volume', 100))
+        self.volume.setValue(self.settings_data.get('volume', 100))
+        self.tts.set_volume(self.settings_data.get('volume', 100))
         self.volume_value = QLabel(str(self.volume.value()))
         self.rate = QDial()
         self.rate.setRange(1, 400)
-        self.rate.setValue(self.character_data.get('rate', 200))
+        self.rate.setValue(self.settings_data.get('rate', 200))
+        self.tts.set_rate(self.settings_data.get('rate', 200))
         self.rate_value = QLabel(str(self.rate.value()))
-        self.phonetic = QLineEdit(self.character_data.get('phonetic', ''))
+        self.phonetic = QLineEdit(self.settings_data.get('phonetic', ''))
         self.phonetic_button = QPushButton()
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Save)
+        self.button_box.accepted.connect(self.save)
+        self.button_box.rejected.connect(self.reject)
         self.create_gui()
 
     def create_gui(self):
@@ -104,18 +107,19 @@ class CharacterDialog(QDialog):
         form_layout.addRow(dial_labels)
         form_layout.addRow(dial_layout)
         form_layout.addRow(value_layout)
+        form_layout.addRow(self.button_box)
         self.setLayout(form_layout)
         self.show()
 
     @pyqtSlot()
     def save(self):
-        self.character_data = {
+        self.settings_data = {
             'game_directory': self.game_directory.text(),
-            'log_file': self.log_file.text(),
+            'log_file': str(self.log_file.currentText()),
             'server_name': self.server_name.text(),
             'character': self.character.text(),
             'phonetic': self.phonetic.text(),
-            'voice': self.voices.currentText(),
+            'voice': str(self.voices.currentText()),
             'volume': self.volume.value(),
             'rate': self.rate.value()
         }
@@ -155,6 +159,15 @@ class CharacterDialog(QDialog):
                 files.append(file.name)
             self.log_file.addItems([file for file in files])
 
+    def populate_log_files(self):
+        directory_path = Path(QDir.toNativeSeparators(self.game_directory.text()))
+        if directory_path.exists():
+            logs_path = directory_path / 'Logs'
+            files = []
+            for file in logs_path.glob('eqlog_*_*.txt'):
+                files.append(file.name)
+            self.log_file.addItems([file for file in files])
+
     def update_log_file(self):
         file_selected = self.log_file.currentText()
         expression = re.compile(r"^eqlog_(\w+)_(\w+).txt$")
@@ -167,9 +180,3 @@ class CharacterDialog(QDialog):
     def play_phonetic_name(self):
         name = self.phonetic.text()
         self.tts.play(name)
-
-
-# TODO: Remove when done testing
-App = QApplication(sys.argv)
-window = CharacterDialog(None, {})
-sys.exit(App.exec())

@@ -32,4 +32,4 @@ class LogParserFilter:
         }
 
     def get_config(self):
-        return self.config
+        return self.config.copy()

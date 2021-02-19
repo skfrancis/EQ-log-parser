@@ -5,6 +5,7 @@ from os import SEEK_END
 
 
 class LogParserThreadObject(QObject):
+    stopped = pyqtSignal()
     data_ready = pyqtSignal(dict)
 
     def __init__(self, log_file):
@@ -22,5 +23,7 @@ class LogParserThreadObject(QObject):
                     data = line_parse(line)
                     self.data_ready.emit(data)
 
+    @pyqtSlot()
     def stop(self):
         self._active = False
+        self.stopped.emit()
