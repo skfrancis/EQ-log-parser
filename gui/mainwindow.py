@@ -6,10 +6,13 @@ import json
 from gui.parseview import ParseView
 from filters.logparserfilter import LogParserFilter
 
+from filters.chatfilter import ChatFilter
+from filters.partyfilter import PartyFilter
 from filters.considerfilter import ConsiderFilter
 from filters.factionfilter import FactionFilter
 from filters.locationfilter import LocationFilter
 from filters.systemmessagefilter import SystemMessageFilter
+from filters.castingfilter import CastingFilter
 from filters.zoningfilter import ZoningFilter
 
 from gui.widgets.triggers.triggerview import TriggerView
@@ -29,12 +32,15 @@ class MainWindow(QMainWindow):
         self.log_thread = self.create_log_parser()
         self.log_filter = LogParserFilter()
         self.log_view = ParseView(self, self.log_filter.get_config())
+        self.tabs_widget = QTabWidget()
+        self.create_trigger_view()
         self.filters = []
         self.create_parse_filters()
         self.views = []
         self.create_parse_views()
-        self.tabs_widget = QTabWidget()
         self.zone_filter = ZoningFilter()
+        self.server_label = QLabel('Server: {}'.format(self.settings_data.get('server_name', '')))
+        self.character_label = QLabel('Character: {}'.format(self.settings_data.get('character', '')))
         self.zone_label = QLabel('Current Zone: {}'.format(None))
         self.log_thread.start()
         self.create_menu_bar()
@@ -66,6 +72,10 @@ class MainWindow(QMainWindow):
             json.dump(settings_data, file, indent=4)
             file.close()
 
+    def create_trigger_view(self):
+        triggers = TriggerView(self)
+        self.tabs_widget.addTab(triggers, 'Triggers')
+
     def create_log_parser(self):
         thread = QThread()
         log_path = self.game_path / 'Logs'
@@ -78,18 +88,22 @@ class MainWindow(QMainWindow):
         return thread
 
     def create_parse_filters(self):
+        self.filters.append(ChatFilter())
+        self.filters.append(PartyFilter())
         self.filters.append(ConsiderFilter())
         self.filters.append(FactionFilter())
         self.filters.append(LocationFilter())
         self.filters.append(SystemMessageFilter())
+        self.filters.append(CastingFilter())
 
     def create_parse_views(self):
         for filter_name in self.filters:
-            self.views.append(ParseView(self, filter_name.get_config()))
+            view = ParseView(self, filter_name.get_config())
+            self.create_tab_view(view, filter_name.get_filter_name())
+            self.views.append(view)
 
-    def create_tab_view(self):
-        for view_name in self.views:
-            self.tabs_widget.addTab(view_name, 'Tab')
+    def create_tab_view(self, view, tab_name):
+        self.tabs_widget.addTab(view, tab_name)
 
     def create_menu_bar(self):
         menu_bar = self.menuBar()
@@ -101,11 +115,15 @@ class MainWindow(QMainWindow):
         file_menu.addAction(settings_action)
         file_menu.addAction(exit_action)
         help_menu = QMenu('Help', self)
+        about_action = QAction('About', self)
+        help_menu.addAction(about_action)
         menu_bar.addMenu(file_menu)
         menu_bar.addMenu(help_menu)
 
     def create_status_bar(self):
         status_bar = self.statusBar()
+        status_bar.addPermanentWidget(self.server_label)
+        status_bar.addPermanentWidget(self.character_label)
         status_bar.addPermanentWidget(self.zone_label)
 
     def create_gui(self):
@@ -113,10 +131,7 @@ class MainWindow(QMainWindow):
         icon_path = self.path / 'img' / 'eq-icon.png'
         icon = QIcon(str(icon_path.resolve()))
         self.setWindowIcon(icon)
-        triggers = TriggerView(self)
         layout = QVBoxLayout()
-        self.tabs_widget.addTab(triggers, 'Triggers')
-        self.create_tab_view()
         layout.addWidget(self.tabs_widget)
         layout.addWidget(self.log_view)
         main_widget = QWidget()

@@ -8,6 +8,7 @@ class LocationFilter:
         self.display = display
         self.config = None
         self.create_config()
+        self.filter_name = 'Location'
         self.regexes = [
             re.compile(r"^Your Location is (-?\d+.+?), (-?\d+.+?), (-?\d+.+?)$")
         ]
@@ -49,3 +50,6 @@ class LocationFilter:
 
     def get_config(self):
         return self.config.copy()
+
+    def get_filter_name(self):
+        return self.filter_name

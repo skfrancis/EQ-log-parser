@@ -8,6 +8,7 @@ class ConsiderFilter:
         self.display = display
         self.config = None
         self.create_config()
+        self.filter_name = 'Consider'
         self.regexes = [
             re.compile(r"(.+) (-.+)? ((?:scowls|glares|glowers|regards|looks|judges|kindly) .+?)"
                        r" -- (.+) \(Lvl: (\d+)\)$"),
@@ -25,9 +26,9 @@ class ConsiderFilter:
                 'Time': timestamp.strftime('%X'),
                 'Target': result_data.group(1),
                 'Level': result_data.group(5),
-                'Rare': bool(result_data.group(2)),
                 'Consider': result_data.group(3),
                 'Difficulty': result_data.group(4),
+                'Rare': bool(result_data.group(2)),
                 'debug': result_data.string
             }
             if self.display:
@@ -49,10 +50,13 @@ class ConsiderFilter:
             'Time': QHeaderView.ResizeToContents,
             'Target': QHeaderView.ResizeToContents,
             'Level': QHeaderView.ResizeToContents,
-            'Rare': QHeaderView.ResizeToContents,
             'Consider': QHeaderView.ResizeToContents,
-            'Difficulty': QHeaderView.ResizeToContents
+            'Difficulty': QHeaderView.ResizeToContents,
+            'Rare': QHeaderView.ResizeToContents
         }
 
     def get_config(self):
         return self.config.copy()
+
+    def get_filter_name(self):
+        return self.filter_name

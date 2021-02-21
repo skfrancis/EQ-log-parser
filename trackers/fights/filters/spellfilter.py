@@ -1,5 +1,6 @@
 import re
 from pprint import pprint
+from PyQt5.QtWidgets import QHeaderView
 
 
 def search_data(expression, log_line):
@@ -9,6 +10,9 @@ def search_data(expression, log_line):
 class SpellFilter:
     def __init__(self, display=False):
         self.display = display
+        self.config = None
+        self.create_config()
+        self.filter_name = 'Spells'
         self.hits_regex = [
             re.compile(r"^(?P<source>.+?) hit (?P<target>.+?) for (?P<amount>\d+) points? of .+? damage by "
                        r"(?P<spell>.+?)\.(?: \((?P<dmgmod>[\w\s]+)\))?$")
@@ -27,41 +31,52 @@ class SpellFilter:
         ]
 
     def parse(self, log_line):
-        def return_data(timestamp, result_data):
-            return {
-                'timestamp': timestamp,
-                'source': result_data.group('source'),
-                'target': result_data.group('target'),
-                'amount': result_data.group('amount'),
-                'attack': result_data.group('spell'),
-                'damagemod': result_data.group('dmgmod'),
-                'debug': result_data.string
-            }
-
         def display_data(data):
             pprint(data)
 
-        result = self._hits_data(log_line)
-        if result:
-            parsed = return_data(log_line.get('timestamp'), result)
-            if self.display:
-                display_data(parsed)
-            return parsed
+        def return_data(timestamp, result_data):
+            return {
+                'Date': timestamp.strftime('%x'),
+                'Time': timestamp.strftime('%X'),
+                'Source': result_data.group('source'),
+                'Target': result_data.group('target'),
+                'Amount': result_data.group('amount'),
+                'Attack': result_data.group('spell'),
+                'Mod': result_data.group('dmgmod'),
+                'debug': result_data.string
+            }
 
-        result = self._dots_data(log_line)
-        if result:
-            parsed = return_data(log_line.get('timestamp'), result)
-            if self.display:
-                display_data(parsed)
-            return parsed
-        result = self._resists_data(log_line)
-        if result:
-            parsed = return_data(log_line.get('timestamp'), result)
-            if self.display:
-                display_data(parsed)
-            return parsed
-
+        parses = [
+            self._hits_data(log_line),
+            self._dots_data(log_line),
+            self._resists_data(log_line)
+        ]
+        for parse in parses:
+            if parse:
+                parsed = return_data(log_line.get('timestamp'), parse)
+                if self.display:
+                    display_data(parsed)
+                return parsed
         return None
+
+    def create_config(self):
+        self.config = {
+            'columns': 7,
+            'max_rows': 1000,
+            'Date': QHeaderView.ResizeToContents,
+            'Time': QHeaderView.ResizeToContents,
+            'Source': QHeaderView.ResizeToContents,
+            'Target': QHeaderView.ResizeToContents,
+            'Amount': QHeaderView.ResizeToContents,
+            'Attack': QHeaderView.ResizeToContents,
+            'Mod': QHeaderView.ResizeToContents
+        }
+
+    def get_config(self):
+        return self.config.copy()
+
+    def get_filter_name(self):
+        return self.filter_name
 
     def _hits_data(self, log_line):
         for expression in self.hits_regex:

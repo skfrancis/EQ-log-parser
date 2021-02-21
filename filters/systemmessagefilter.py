@@ -8,6 +8,7 @@ class SystemMessageFilter:
         self.display = display
         self.config = None
         self.create_config()
+        self.filter_name = 'System Message'
         self.regexes = [
             re.compile(r"^<SYSTEMWIDE_MESSAGE>: ?(.+?)$")
         ]
@@ -44,3 +45,6 @@ class SystemMessageFilter:
 
     def get_config(self):
         return self.config.copy()
+
+    def get_filter_name(self):
+        return self.filter_name

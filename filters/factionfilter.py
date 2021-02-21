@@ -8,6 +8,7 @@ class FactionFilter:
         self.display = display
         self.config = None
         self.create_config()
+        self.filter_name = 'Faction'
         self.regexes = [
             re.compile(r"^Your faction standing with ([^.]+) has been adjusted by (-?\d+)\.$")
         ]
@@ -29,7 +30,7 @@ class FactionFilter:
             return parsed
 
         for expression in self.regexes:
-            result = regex.search(expression, log_line.get('text'))
+            result = re.search(expression, log_line.get('text'))
             if result:
                 return process_data(log_line.get('timestamp'), result)
 
@@ -47,3 +48,7 @@ class FactionFilter:
 
     def get_config(self):
         return self.config.copy()
+
+    def get_filter_name(self):
+        return self.filter_name
+

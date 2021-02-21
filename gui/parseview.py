@@ -19,6 +19,7 @@ class ParseView(QTableWidget):
             header.setSectionResizeMode(column, self.column_sizes[column])
         self.setHorizontalHeaderLabels(self.column_names)
         self.setEditTriggers(QTableWidget.NoEditTriggers)
+        # self.setSortingEnabled(True)
         self.show()
 
     def display_row(self, data):
