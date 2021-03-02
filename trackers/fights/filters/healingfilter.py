@@ -8,7 +8,7 @@ class HealingFilter:
         self.display = display
         self.config = None
         self.create_config()
-        self.filter_name = 'Healing'
+        self.filter_name = 'Heals'
         self.regexes = [
             re.compile(r"^(\w+) healed (.+?) over time for (\d+)(?: \((\d+)\))? hit points by (.+?)\."
                        r"(?: \((?P<healmod>.+?)\))?$"),
@@ -24,14 +24,14 @@ class HealingFilter:
 
         def process_data(timestamp, result_data):
             return {
-                'Date': timestamp.strftime('%x'),
-                'Time': timestamp.strftime('%X'),
+                'Timestamp': timestamp,
                 'Source': result_data.group(1),
                 'Target': result_data.group(2),
                 'Amount': result_data.group(3),
                 'Original': result_data.group(4),
                 'Spell': result_data.group(5),
                 'Mod': result_data.group('healmod'),
+                'Type': 'heal',
                 'debug': result_data.string
             }
 
@@ -46,10 +46,9 @@ class HealingFilter:
 
     def create_config(self):
         self.config = {
-            'columns': 8,
+            'columns': 7,
             'max_rows': 1000,
-            'Date': QHeaderView.ResizeToContents,
-            'Time': QHeaderView.ResizeToContents,
+            'Timestamp': QHeaderView.ResizeToContents,
             'Source': QHeaderView.ResizeToContents,
             'Target': QHeaderView.ResizeToContents,
             'Amount': QHeaderView.ResizeToContents,

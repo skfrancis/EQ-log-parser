@@ -1,11 +1,11 @@
-from trackers.fights.events.fightevent import FightEvent
+from trackers.fights.events.fightevent import FightFilter
 from trackers.fights.fightmember import FightMember
 import pandas as pd
 
 
 class FightTracker:
     def __init__(self):
-        self.fight_event = FightEvent()
+        self.fight_event = FightFilter()
         self.members = []
 
     def parse(self, log_line):

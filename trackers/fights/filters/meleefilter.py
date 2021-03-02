@@ -34,14 +34,18 @@ class MeleeFilter:
             pprint(data)
 
         def return_data(timestamp, result_data):
+            if result_data.group('amount').isnumeric():
+                filter_type = 'hit'
+            else:
+                filter_type = 'miss'
             return {
-                'Date': timestamp.strftime('%x'),
-                'Time': timestamp.strftime('%X'),
+                'Timestamp': timestamp,
                 'Source': result_data.group('source').replace('YOUR', 'You'),
                 'Target': result_data.group('target').replace('YOU', 'You'),
                 'Amount': result_data.group('amount'),
                 'Attack': result_data.group('dmgtype'),
                 'Mod': result_data.group('dmgmod'),
+                'Type': filter_type,
                 'debug': result_data.string
             }
 
@@ -60,10 +64,9 @@ class MeleeFilter:
 
     def create_config(self):
         self.config = {
-            'columns': 7,
+            'columns': 6,
             'max_rows': 1000,
-            'Date': QHeaderView.ResizeToContents,
-            'Time': QHeaderView.ResizeToContents,
+            'Timestamp': QHeaderView.ResizeToContents,
             'Source': QHeaderView.ResizeToContents,
             'Target': QHeaderView.ResizeToContents,
             'Amount': QHeaderView.ResizeToContents,
@@ -88,5 +91,3 @@ class MeleeFilter:
     def _misses_data(self, log_line):
         for expression in self.misses_regex:
             return search_data(expression, log_line)
-
-

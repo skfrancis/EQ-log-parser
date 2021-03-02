@@ -35,14 +35,18 @@ class SpellFilter:
             pprint(data)
 
         def return_data(timestamp, result_data):
+            if result_data.group('amount').isnumeric():
+                filter_type = 'hit'
+            else:
+                filter_type = 'miss'
             return {
-                'Date': timestamp.strftime('%x'),
-                'Time': timestamp.strftime('%X'),
+                'Timestamp': timestamp,
                 'Source': result_data.group('source'),
                 'Target': result_data.group('target'),
                 'Amount': result_data.group('amount'),
                 'Attack': result_data.group('spell'),
                 'Mod': result_data.group('dmgmod'),
+                'Type': filter_type,
                 'debug': result_data.string
             }
 
@@ -61,10 +65,9 @@ class SpellFilter:
 
     def create_config(self):
         self.config = {
-            'columns': 7,
+            'columns': 6,
             'max_rows': 1000,
-            'Date': QHeaderView.ResizeToContents,
-            'Time': QHeaderView.ResizeToContents,
+            'Timestamp': QHeaderView.ResizeToContents,
             'Source': QHeaderView.ResizeToContents,
             'Target': QHeaderView.ResizeToContents,
             'Amount': QHeaderView.ResizeToContents,

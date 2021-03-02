@@ -1,6 +1,7 @@
 PyQt5
 regex
 pandas
-SQLAlchemy
+numPy
 lxml
 pyttsx3
+SQLAlchemy

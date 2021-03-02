@@ -8,7 +8,7 @@ class DeathFilter:
         self.display = display
         self.config = None
         self.create_config()
-        self.filter_name = 'Death'
+        self.filter_name = 'Deaths'
         self.regexes = [
             re.compile(r"^(?P<target>.+) (?:have|has) been slain by (?P<source>.+)!$"),
             re.compile(r"^(?P<source>You) have slain (?P<target>.+)!$"),
@@ -21,13 +21,13 @@ class DeathFilter:
 
         def process_data(timestamp, result_data):
             return {
-                'Date': timestamp.strftime('%x'),
-                'Time': timestamp.strftime('%X'),
+                'Timestamp': timestamp,
                 'Source': result_data.group('source'),
                 'Target': result_data.group('target'),
                 'Amount': 'death',
                 'Attack': None,
-                'Damagemod': None,
+                'Mod': None,
+                'Type': 'death',
                 'debug': result_data.string
             }
 
@@ -42,14 +42,13 @@ class DeathFilter:
 
     def create_config(self):
         self.config = {
-            'columns': 6,
+            'columns': 5,
             'max_rows': 1000,
-            'Date': QHeaderView.ResizeToContents,
-            'Time': QHeaderView.ResizeToContents,
+            'Timestamp': QHeaderView.ResizeToContents,
             'Source': QHeaderView.ResizeToContents,
             'Target': QHeaderView.ResizeToContents,
             'Amount': QHeaderView.ResizeToContents,
-            'Damagemod': QHeaderView.ResizeToContents
+            'Mod': QHeaderView.ResizeToContents
         }
 
     def get_config(self):
