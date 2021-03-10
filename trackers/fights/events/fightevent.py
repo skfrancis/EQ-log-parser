@@ -4,29 +4,30 @@ from trackers.fights.fightmember import FightMember
 
 
 class FightEvent:
-    def __init__(self, target):
+    def __init__(self):
         self.start_time = datetime.datetime.now()
         self.updated_time = datetime.datetime.now()
         self.uuid = str(uuid4())
-        self.target = FightMember(target)
+        self.target = None
         self.members = []
 
     def parse_event(self, event_data):
+        self.updated_time = datetime.datetime.now()
         source = event_data.get('Source')
-        fight_member = self.get_fight_member(source)
+        # target = event_data.get('Target')
+
         if event_data.get('Type') == 'hit':
+            fight_member = self.get_fight_member(source)
             fight_member.add_hit(event_data)
         elif event_data.get('Type') == 'miss':
+            fight_member = self.get_fight_member(source)
             fight_member.add_miss(event_data)
-        elif event_data.get('Type') == 'heal':
-            fight_member.add_heal(event_data)
         elif event_data.get('Type') == 'death':
-            fight_member.add_death(event_data)
+            return self.complete_fight()
+        return None
 
     def get_fight_member(self, source):
         fight_member = None
-        if source == self.target.get_member_name():
-            return self.target
         for member in self.members:
             if source == member.get_member_name():
                 fight_member = member
@@ -37,4 +38,7 @@ class FightEvent:
         return fight_member
 
     def complete_fight(self):
-        pass
+        fight_data = []
+        for member in self.members:
+            fight_data.append(member.get_fight_data())
+        return fight_data

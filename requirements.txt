@@ -2,6 +2,7 @@ PyQt5
 regex
 pandas
 numPy
+matplotlib
 lxml
 pyttsx3
 SQLAlchemy

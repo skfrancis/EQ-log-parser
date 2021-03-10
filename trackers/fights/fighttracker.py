@@ -1,6 +1,5 @@
 from trackers.fights.events.fightevent import FightFilter
 from trackers.fights.fightmember import FightMember
-import pandas as pd
 
 
 class FightTracker:
