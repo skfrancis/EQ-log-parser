@@ -20,9 +20,9 @@ To Do List
 -----------
 * Filters
     * Randoms
-    * Unwanted text (Spam log)
-    * Dot Damage unknown source
-* Spell Data
+    * Unwanted text (Spam log) (needed)?
+    * Dot Damage from an unknown source (needed)?
+* Spell Data (Planning stage)
     * spells_us.txt
     * spells_us_str.txt
 * Trackers
@@ -30,6 +30,9 @@ To Do List
       * Add healing 
     * Looting
     * Experience
+* Alert Triggers
+    * check box toggle saved
+    * alert filter built from gui 
 * Code Testing   
 
 
