@@ -14,7 +14,7 @@ class FightEvent:
     def parse_event(self, event_data):
         self.updated_time = datetime.datetime.now()
         source = event_data.get('Source')
-        # target = event_data.get('Target')
+        target = event_data.get('Target')
 
         if event_data.get('Type') == 'hit':
             fight_member = self.get_fight_member(source)

@@ -1,23 +1,23 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QStatusBar, QLabel, QWidget, QTabWidget, QMenu, QAction
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QWidget, QTabWidget, QMenu, QAction
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QThread, pyqtSlot
+from PyQt5.QtCore import QThread
 from pathlib import Path
 import json
-from gui.parseview import ParseView
-from filters.logparserfilter import LogParserFilter
 
 from filters.chatfilter import ChatFilter
-from filters.partyfilter import PartyFilter
 from filters.considerfilter import ConsiderFilter
 from filters.factionfilter import FactionFilter
 from filters.locationfilter import LocationFilter
+from filters.logparserfilter import LogParserFilter
+from filters.partyfilter import PartyFilter
 from filters.systemmessagefilter import SystemMessageFilter
-from filters.castingfilter import CastingFilter
+from filters.tradesfilter import TradesFilter
 from filters.zoningfilter import ZoningFilter
 
 from gui.widgets.triggers.triggerview import TriggerView
 from gui.widgets.settings.settingsdialog import SettingsDialog
 from gui.widgets.log.logparserthreadobject import LogParserThreadObject
+from gui.parseview import ParseView
 
 
 class MainWindow(QMainWindow):
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         self.filters.append(FactionFilter())
         self.filters.append(LocationFilter())
         self.filters.append(SystemMessageFilter())
-        self.filters.append(CastingFilter())
+        self.filters.append(TradesFilter())
 
     def create_parse_views(self):
         for filter_name in self.filters:

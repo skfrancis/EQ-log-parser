@@ -4,32 +4,31 @@ from data.buildtables import BuildTables
 
 class Database:
     def __init__(self, db_file):
-        self._db_file = db_file
-        self._db_engine = self._connect()
-        self._metadata = MetaData()
-        self._create_tables()
+        self.db_file = db_file
+        self.db_engine = self.connect()
+        self.metadata = MetaData()
+        self.create_tables()
 
-    def _connect(self):
-        connect_string = 'sqlite:///' + self._db_file
+    def connect(self):
+        connect_string = 'sqlite:///' + self.db_file
         return create_engine(connect_string, echo=True)
 
-    def _create_tables(self):
-        BuildTables(self._metadata)
-        self._metadata.create_all(self._db_engine, checkfirst=True)
+    def create_tables(self):
+        BuildTables(self.metadata)
+        self.metadata.create_all(self.db_engine, checkfirst=True)
 
     def select(self, table, where_clause=None):
-        db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)
-        return self._db_engine.execute(db_table.select(whereclause=where_clause))
+        db_table = Table(table, self.metadata, autoload=True, autoload_with=self.db_engine)
+        return self.db_engine.execute(db_table.select(whereclause=where_clause))
 
     def insert(self, table, data):
-        db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)
-        return self._db_engine.execute(db_table.insert(), data)
+        db_table = Table(table, self.metadata, autoload=True, autoload_with=self.db_engine)
+        return self.db_engine.execute(db_table.insert(), data)
 
     def update(self, table, values, where_clause=None):
-        db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)
-        return self._db_engine.execute(db_table.update(whereclause=where_clause, values=values))
+        db_table = Table(table, self.metadata, autoload=True, autoload_with=self.db_engine)
+        return self.db_engine.execute(db_table.update(whereclause=where_clause, values=values))
 
     def delete(self, table, where_clause=None):
-        db_table = Table(table, self._metadata, autoload=True, autoload_with=self._db_engine)
-        self._db_engine.execute(db_table.delete(whereclause=where_clause))
-
+        db_table = Table(table, self.metadata, autoload=True, autoload_with=self.db_engine)
+        self.db_engine.execute(db_table.delete(whereclause=where_clause))

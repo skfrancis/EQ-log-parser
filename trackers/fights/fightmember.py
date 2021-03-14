@@ -2,8 +2,10 @@ import pandas as pd
 
 
 class FightMember:
-    def __init__(self, name):
+    def __init__(self, name, char_class=None, level=None):
         self.name = name
+        self.char_class = char_class
+        self.level = level
         self.death_count = 0
         self.total_dmg = 0
         self.total_hits = 0
@@ -61,9 +63,11 @@ class FightMember:
         self.death_count += 1
 
     def get_fight_data(self):
-        index = ['name', 'duration', 'death count', 'total damage', 'total hits', 'total misses']
+        index = ['name', 'class', 'level', 'duration', 'death count', 'total damage', 'total hits', 'total misses']
         data = [
             self.name,
+            self.char_class,
+            self.level,
             int(self._get_duration()),
             self.death_count,
             self.total_dmg,
