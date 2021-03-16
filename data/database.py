@@ -11,7 +11,7 @@ class Database:
 
     def connect(self):
         connect_string = 'sqlite:///' + self.db_file
-        return create_engine(connect_string, echo=True)
+        return create_engine(connect_string, echo=False)
 
     def create_tables(self):
         BuildTables(self.metadata)

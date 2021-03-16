@@ -4,15 +4,8 @@ from PyQt5.QtCore import QThread
 from pathlib import Path
 import json
 
-from filters.chatfilter import ChatFilter
-from filters.considerfilter import ConsiderFilter
-from filters.factionfilter import FactionFilter
-from filters.locationfilter import LocationFilter
-from filters.logparserfilter import LogParserFilter
-from filters.partyfilter import PartyFilter
-from filters.systemmessagefilter import SystemMessageFilter
-from filters.tradesfilter import TradesFilter
-from filters.zoningfilter import ZoningFilter
+from util.filters import ChatFilter, ConsiderFilter, FactionFilter, LocationFilter, LogParserFilter
+from util.filters import PartyFilter, SystemMessageFilter, TradesFilter, ZoningFilter
 
 from gui.widgets.triggers.triggerview import TriggerView
 from gui.widgets.settings.settingsdialog import SettingsDialog
@@ -99,7 +92,7 @@ class MainWindow(QMainWindow):
     def create_parse_views(self):
         for filter_name in self.filters:
             view = ParseView(self, filter_name.get_config())
-            self.create_tab_view(view, filter_name.get_filter_name())
+            self.create_tab_view(view, filter_name.filter_name)
             self.views.append(view)
 
     def create_tab_view(self, view, tab_name):
@@ -150,7 +143,7 @@ class MainWindow(QMainWindow):
 
     def update_current_zone(self, zone_data):
         if zone_data:
-            self.zone_label.setText('Current Zone: {}'.format(zone_data.get('zone')))
+            self.zone_label.setText('Current Zone: {}'.format(zone_data.get('Zone')))
 
     def close_event(self):
         self.close()

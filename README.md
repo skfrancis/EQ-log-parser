@@ -34,5 +34,5 @@ To Do List
     * check box toggle saved
     * alert filter built from gui 
 * Code Testing   
-
+* Ability to save multiple character settings
 
