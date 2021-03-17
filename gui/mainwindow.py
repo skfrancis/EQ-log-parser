@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QWidget, QTabWidget, QMenu, QAction
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QThread
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QWidget, QTabWidget, QMenu
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtCore import QThread
 from pathlib import Path
 import json
 
-from util.filters import ChatFilter, ConsiderFilter, FactionFilter, LocationFilter, LogParserFilter
-from util.filters import PartyFilter, SystemMessageFilter, TradesFilter, ZoningFilter
+from filters.generalfilters import ChatFilter, ConsiderFilter, FactionFilter, LocationFilter, LogParserFilter
+from filters.generalfilters import PartyFilter, SystemMessageFilter, TradesFilter, ZoningFilter
 
 from gui.widgets.triggers.triggerview import TriggerView
 from gui.widgets.settings.settingsdialog import SettingsDialog
@@ -14,10 +14,10 @@ from gui.parseview import ParseView
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, app):
-        super().__init__()
+    def __init__(self, app, path):
+        super(MainWindow, self).__init__()
         self.app = app
-        self.path = Path.cwd()
+        self.path = path
         self.settings_path = self.path / 'config'
         self.settings_data = self.load_settings()
         self.game_path = Path(self.settings_data.get('game_directory', ''))

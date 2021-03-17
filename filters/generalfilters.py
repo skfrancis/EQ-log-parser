@@ -1,7 +1,11 @@
 import re
 import regex
 from pprint import pprint
-from PyQt5.QtWidgets import QHeaderView
+from PySide6.QtWidgets import QHeaderView
+
+
+ResizeToContents = QHeaderView.ResizeToContents
+Stretch = QHeaderView.ResizeToContents
 
 
 def display_data(data):
@@ -18,13 +22,45 @@ def create_config(keys, values):
     return config
 
 
+class CastingFilter:
+    def __init__(self, display=False):
+        self.display = display
+        self.filter_name = 'Spell Casting'
+        self.columns = ['Date', 'Time', 'Source', 'Spell']
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents]
+        self.regexes = [
+            re.compile(r"^(.+?) begins? (?:casting|singing) (.+)\.$"),
+            re.compile(r"^(.+?) activates? (.+)\.$"),
+        ]
+
+    def parse(self, log_line):
+        for expression in self.regexes:
+            result = re.search(expression, log_line.get('text'))
+            if result:
+                timestamp = log_line.get('timestamp')
+                parsed_data = {
+                    self.columns[0]: timestamp.strftime('%x'),
+                    self.columns[1]: timestamp.strftime('%X'),
+                    self.columns[2]: result.group(1),
+                    self.columns[0]: result.group(2),
+                    'debug': result.string
+                }
+                if self.display:
+                    display_data(parsed_data)
+                return parsed_data
+        return None
+
+    def get_config(self):
+        return create_config(self.columns, self.sizes)
+
+
 class ChatFilter:
     def __init__(self, display=False):
         self.display = display
         self.filter_name = 'Chat'
         self.columns = ['Date', 'Time', 'Channel', 'Source', 'Target', 'Message']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.Stretch]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents,
+                      ResizeToContents, ResizeToContents, Stretch]
         self.regexes = [
             re.compile(r"^(.+?) (?:say to your|told|tell your|tells the|tells?) (.+?),\s(?:in .+, )?\s?'(.+)'$"),
             re.compile(r"^(.+?) (says? out of character|says?|shouts?|auctions?),\s(?:in .+, )?'(.+)'$")
@@ -65,9 +101,8 @@ class ConsiderFilter:
         self.display = display
         self.filter_name = 'Consider'
         self.columns = ['Date', 'Time', 'Target', 'Level', 'Consider', 'Difficulty', 'Rare']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents,
+                      ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             re.compile(r"(.+) (-.+)? ((?:scowls|glares|glowers|regards|looks|judges|kindly) .+?)"
                        r" -- (.+) \(Lvl: (\d+)\)$"),
@@ -104,8 +139,7 @@ class FactionFilter:
         self.display = display
         self.filter_name = 'Faction'
         self.columns = ['Date', 'Time', 'Faction', 'Amount']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             re.compile(r"^Your faction standing with ([^.]+) has been adjusted by (-?\d+)\.$")
         ]
@@ -136,8 +170,7 @@ class LocationFilter:
         self.display = display
         self.filter_name = 'Location'
         self.columns = ['Date', 'Time', 'Y', 'X', 'Z']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             re.compile(r"^Your Location is (-?\d+.+?), (-?\d+.+?), (-?\d+.+?)$")
         ]
@@ -168,7 +201,7 @@ class LogParserFilter:
     def __init__(self, display=False):
         self.display = display
         self.columns = ['Date', 'Time', 'Text']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.Stretch]
+        self.sizes = [ResizeToContents, ResizeToContents, Stretch]
 
     def parse(self, log_line):
         timestamp = log_line.get('timestamp')
@@ -190,8 +223,7 @@ class PartyFilter:
         self.display = display
         self.filter_name = 'Party'
         self.columns = ['Date', 'Time', 'Member', 'Status', 'Type']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             re.compile(r"^(?P<player>.+?)(?: have| has)? (?P<status>join)ed the (?P<type>group|raid)\.$"),
             re.compile(r"^(?P<player>You) notify \w+ that you agree to (join) the (?P<type>group|raid)\.$"),
@@ -227,8 +259,7 @@ class PetLeaderFilter:
         self.display = display
         self.filter_name = 'Pet Leader'
         self.columns = ['Date', 'Time', 'Leader', 'Pet']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             re.compile(r"(?P<pet>^[GJKLVXZ]([aeio][bknrs]){0,2}(ab|er|n|tik)) says, 'My leader is (?P<leader>\w+)\.'$")
         ]
@@ -259,7 +290,7 @@ class SystemMessageFilter:
         self.display = display
         self.filter_name = 'System Message'
         self.columns = ['Date', 'Time', 'Message']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.Stretch]
+        self.sizes = [ResizeToContents, ResizeToContents, Stretch]
         self.regexes = [
             re.compile(r"^<SYSTEMWIDE_MESSAGE>: ?(.+?)$")
         ]
@@ -289,8 +320,7 @@ class TradesFilter:
         self.display = display
         self.filter_name = 'Tradeskills'
         self.columns = ['Date', 'Time', 'Source', 'Created', 'Item']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             re.compile(r"^(.+?) (have fashioned the items together to create [^:]+:) ([^.]+)\.$"),
             re.compile(r"^(.+?) (has fashioned) ([^.]+)\.$"),
@@ -327,8 +357,7 @@ class WhoFilter:
         self.display = display
         self.filter_name = 'Who'
         self.columns = ['Date', 'Time', 'Name', 'Class', 'Level']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents,
-                      QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             regex.compile(r"^[A-Z\s]*\[(?:(ANONYMOUS)|(?P<lvl>\d+) (?P<class>[\w\s]+)|(?P<lvl>\d+)"
                           r" .+? \((?P<class>[\w\s]+)\))\](?:\s+(?P<name>\w+))"),
@@ -367,7 +396,7 @@ class ZoningFilter:
             'the Drunken Monkey stance adequately'
         ]
         self.columns = ['Date', 'Time', 'Zone']
-        self.sizes = [QHeaderView.ResizeToContents, QHeaderView.ResizeToContents, QHeaderView.ResizeToContents]
+        self.sizes = [ResizeToContents, ResizeToContents, ResizeToContents]
         self.regexes = [
             re.compile(r"^You have entered (.+)\.$")
         ]

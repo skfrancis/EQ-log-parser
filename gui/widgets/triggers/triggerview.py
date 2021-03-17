@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QTreeWidget, QMenu, QTreeWidgetItem, QAction
-from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5.QtGui import QCursor
+from PySide6.QtWidgets import QTreeWidget, QMenu, QTreeWidgetItem
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QCursor, QAction
 from gui.widgets.triggers.triggerdialogs import GroupDialog, TriggerDialog
 from gui.widgets.triggers.triggeritems import TriggerGroup, TriggerItem
 from pathlib import Path
@@ -83,7 +83,7 @@ class TriggerView(QTreeWidget):
         self.setCurrentItem(self.root)
         self.clearSelection()
 
-    @pyqtSlot()
+    @Slot()
     def open_item(self):
         item = self.currentItem()
         if isinstance(item, TriggerGroup):
@@ -99,7 +99,7 @@ class TriggerView(QTreeWidget):
                 item.setData(0, QTreeWidgetItem.UserType, dialog.trigger_data)
         self.export_tree()
 
-    @pyqtSlot()
+    @Slot()
     def add_group(self):
         item = self.currentItem()
         data = {'Tag': 'Group'}
@@ -121,7 +121,7 @@ class TriggerView(QTreeWidget):
                 self.clear_selection()
         self.export_tree()
 
-    @pyqtSlot()
+    @Slot()
     def add_trigger(self):
         item = self.currentItem()
         data = {'Tag': 'Trigger'}
@@ -143,13 +143,13 @@ class TriggerView(QTreeWidget):
                 self.clear_selection()
         self.export_tree()
 
-    @pyqtSlot()
+    @Slot()
     def delete_item(self):
         for item in self.selectedItems():
             (item.parent() or self.root).removeChild(item)
         self.export_tree()
 
-    @pyqtSlot()
+    @Slot()
     def open_menu(self):
         menu = QMenu(self)
         add_group = QAction('Add Group', self)

@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
+from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
 
 START_ROW = 0
 
 
 class ParseView(QTableWidget):
     def __init__(self, parent, config):
-        super().__init__(parent)
+        super(ParseView, self).__init__(parent)
         self.columns = config.pop('columns')
         self.max_rows = config.pop('max_rows')
         self.column_names = list(config.keys())
@@ -18,7 +18,7 @@ class ParseView(QTableWidget):
         for column in range(self.columnCount()):
             header.setSectionResizeMode(column, self.column_sizes[column])
         self.setHorizontalHeaderLabels(self.column_names)
-        self.setEditTriggers(QTableWidget.NoEditTriggers)
+        # self.setEditTriggers(QTableWidget.NoEditTriggers)
         # self.setSortingEnabled(True)
         self.show()
 

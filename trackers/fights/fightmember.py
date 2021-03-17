@@ -24,9 +24,9 @@ class FightMember:
         self._update_attack_time(hit_data.get('Timestamp'))
         self.total_hits += 1
         self.total_dmg += int(hit_data.get('Amount'))
-        attack = hit_data.get('Attack')
-        if any(hit['attack'] for hit in self.hits if attack == hit['attack']):
-            index = [i for i, hit in enumerate(self.hits) if attack == hit['attack']]
+        ability = hit_data.get('Ability')
+        if any(hit['Ability'] for hit in self.hits if ability == hit['Ability']):
+            index = [i for i, hit in enumerate(self.hits) if ability == hit['Ability']]
             hit = self.hits[index[0]]
             if int(hit_data.get('Amount')) > hit['max']:
                 hit['max'] = int(hit_data.get('Amount'))
@@ -34,7 +34,7 @@ class FightMember:
             hit['count'] += 1
         else:
             self.hits.append({
-               'attack': attack,
+               'Ability': ability,
                'max': int(hit_data.get('Amount')),
                'damage': int(hit_data.get('Amount')),
                'count': 1
@@ -43,14 +43,14 @@ class FightMember:
     def add_miss(self, miss_data):
         self._update_attack_time(miss_data.get('Timestamp'))
         self.total_misses += 1
-        attack = miss_data.get('Attack')
-        if any(miss['miss'] for miss in self.misses if attack == miss['miss']):
-            index = [i for i, miss in enumerate(self.misses) if attack == miss['miss']]
+        ability = miss_data.get('Ability')
+        if any(miss['miss'] for miss in self.misses if ability == miss['miss']):
+            index = [i for i, miss in enumerate(self.misses) if ability == miss['miss']]
             miss = self.misses[index[0]]
             miss['count'] += 1
         else:
             self.misses.append({
-                'miss': attack,
+                'miss': ability,
                 'count': 1
             })
 

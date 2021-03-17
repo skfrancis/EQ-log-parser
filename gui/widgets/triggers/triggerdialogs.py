@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QFormLayout, QCheckBox, QDialogButtonBox
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtGui import QIcon
+from PySide6.QtWidgets import QDialog, QLineEdit, QFormLayout, QCheckBox, QDialogButtonBox
+from PySide6.QtCore import Slot
+from PySide6.QtGui import QIcon
 from pathlib import Path
 from uuid import uuid4
 
@@ -36,7 +36,7 @@ class TriggerDialog(QDialog):
         self.setLayout(form_layout)
         self.open()
 
-    @pyqtSlot()
+    @Slot()
     def save(self):
         self.trigger_data = {
             'Tag': self.tag,
@@ -76,7 +76,7 @@ class GroupDialog(QDialog):
         self.setLayout(form_layout)
         self.open()
 
-    @pyqtSlot()
+    @Slot()
     def save(self):
         self.group_data = {
             'Tag': self.tag,

@@ -1,19 +1,19 @@
-from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
+from PySide6.QtCore import QObject, Slot, Signal
 from pathlib import Path
 from util.lineparse import line_parse
 from os import SEEK_END
 
 
 class LogParserThreadObject(QObject):
-    stopped = pyqtSignal()
-    data_ready = pyqtSignal(dict)
+    stopped = Signal()
+    data_ready = Signal(dict)
 
     def __init__(self, log_file):
         super().__init__()
         self._log_file = Path(log_file)
         self._active = True
 
-    @pyqtSlot()
+    @Slot()
     def run(self):
         with self._log_file.open('r', encoding="utf8") as file:
             file.seek(0, SEEK_END)
@@ -23,7 +23,7 @@ class LogParserThreadObject(QObject):
                     data = line_parse(line)
                     self.data_ready.emit(data)
 
-    @pyqtSlot()
+    @Slot()
     def stop(self):
         self._active = False
         self.stopped.emit()

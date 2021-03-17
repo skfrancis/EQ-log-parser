@@ -1,4 +1,4 @@
-from util.filters import WhoFilter
+from filters.filters import WhoFilter
 from sqlalchemy import column
 
 

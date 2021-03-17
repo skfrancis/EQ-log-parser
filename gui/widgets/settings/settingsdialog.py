@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QComboBox, QLabel, QDial, QFormLayout, QHBoxLayout
-from PyQt5.QtWidgets import QPushButton, QFileDialog, QDialogButtonBox
-from PyQt5.QtCore import Qt, QDir, pyqtSlot
-from PyQt5.QtGui import QIcon
+from PySide6.QtWidgets import QDialog, QLineEdit, QComboBox, QLabel, QDial, QFormLayout, QHBoxLayout
+from PySide6.QtWidgets import QPushButton, QFileDialog, QDialogButtonBox
+from PySide6.QtCore import Qt, QDir, Slot
+from PySide6.QtGui import QIcon
 from pathlib import Path
 from util.tts import TTS
 import re
@@ -9,12 +9,14 @@ import re
 
 class SettingsDialog(QDialog):
     def __init__(self, parent, settings_data):
-        super().__init__(parent)
+        super(SettingsDialog, self).__init__()
+        self.parent = parent
         self.settings_data = settings_data
         self.tts = TTS()
         self.voice_data = self.tts.get_voices()
         voice_names = [item['name'] for item in self.voice_data]
-        self.path = self.parent().path / 'img'
+        self.path = self.parent.path / 'img'
+        self.path = Path.cwd() / 'img'
         self.game_directory = QLineEdit(self.settings_data.get('game_directory', ''))
         self.directory_button = QPushButton()
         self.log_file = QComboBox()
@@ -111,7 +113,7 @@ class SettingsDialog(QDialog):
         self.setLayout(form_layout)
         self.show()
 
-    @pyqtSlot()
+    @Slot()
     def save(self):
         self.settings_data = {
             'game_directory': self.game_directory.text(),
@@ -125,24 +127,24 @@ class SettingsDialog(QDialog):
         }
         self.accept()
 
-    @pyqtSlot()
+    @Slot()
     def update_volume_label(self):
         self.volume_value.setText(str(self.volume.value()))
         self.tts.set_volume(self.volume.value())
 
-    @pyqtSlot()
+    @Slot()
     def update_rate_label(self):
         self.rate_value.setText(str(self.rate.value()))
         self.tts.set_rate(self.rate.value())
 
-    @pyqtSlot()
+    @Slot()
     def update_voice(self):
         name = self.voices.currentText()
         for voice in self.voice_data:
             if voice.get('name') == name:
                 self.tts.set_voice(voice.get('id'))
 
-    @pyqtSlot()
+    @Slot()
     def get_game_directory(self):
         directory_path = self.game_directory.text()
         dialog_icon_path = self.path / 'eq-icon.png'
