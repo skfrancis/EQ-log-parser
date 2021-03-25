@@ -62,7 +62,7 @@ class DeathFilter:
                     self.columns[0]: timestamp,
                     self.columns[1]: result.group('source'),
                     self.columns[2]: result.group('target'),
-                    self.columns[3]: 'death',
+                    self.columns[3]: None,
                     self.columns[4]: None,
                     self.columns[5]: None,
                     self.columns[6]: 'death',
@@ -84,7 +84,7 @@ class NonSpellFilter:
             re.compile(r"^(?P<target>.+?) is \w+ by (?P<source>.+?)'?s? \w+ for (?P<amount>\d+) points? of "
                        r"(?P<dmgtype>non-melee) damage\.(?: \((?P<dmgmod>[\w\s]+)\))?"),
             re.compile(r"^(?P<source>.+) \w+ to (?P<dmgtype>\w+)(?: on)? (?P<target>.+?), but .*?(?P<amount>\bmiss"
-                       r"|riposte|parry|parries|dodge|block|blocks with \w\w\w shield|INVULNERABLE"
+                       r"|parry|parries|dodge|block|blocks with \w\w\w shield|INVULNERABLE"
                        r"|magical skin absorbs the blow)e?s?!(?: \((?P<dmgmod>[\w\s]+)\))?")
         ]
 
