@@ -8,8 +8,9 @@ class FightMember:
         self.level = level
         self.totals = {
             'total_hits': 0,
-            'total_dmg': 0,
+            'total_outbound_dmg': 0,
             'total_misses': 0,
+            'total_inbound_dmg': 0,
             'total_heals': 0,
             'total_healing': 0,
             'total_over_healing': 0,
@@ -24,6 +25,7 @@ class FightMember:
             'first_attack': None,
             'final_attack': None
         }
+        self.pet = None
 
     def get_member_name(self):
         return self.name
@@ -31,7 +33,7 @@ class FightMember:
     def add_hit(self, hit_data):
         self._update_attack_time(hit_data.get('Timestamp'))
         self.totals['total_hits'] += 1
-        self.totals['total_dmg'] += int(hit_data.get('Amount'))
+        self.totals['total_outbound_dmg'] += int(hit_data.get('Amount'))
         if hit_data.get('Ability')[0].isupper():
             ability = hit_data.get('Ability')
         else:
@@ -58,6 +60,36 @@ class FightMember:
                 mod = mod.capitalize()
                 data[mod] = 1
             self.outbound_dmg.append(data)
+
+    def add_damage(self, dmg_data):
+        self._update_attack_time(dmg_data.get('Timestamp'))
+        self.totals['total_inbound_dmg'] += int(dmg_data.get('Amount'))
+        if dmg_data.get('Ability')[0].isupper():
+            ability = dmg_data.get('Ability')
+        else:
+            ability = dmg_data.get('Ability').capitalize()
+        mod = dmg_data.get('Mod')
+        if any(dmg['Ability'] for dmg in self.inbound_dmg if ability == dmg['Ability']):
+            index = [i for i, dmg in enumerate(self.inbound_dmg) if ability == dmg['Ability']]
+            dmg = self.inbound_dmg[index[0]]
+            if int(dmg_data.get('Amount')) > dmg['Max']:
+                dmg['Max'] = int(dmg_data.get('Amount'))
+            dmg['Damage'] += int(dmg_data.get('Amount'))
+            dmg['Count'] += 1
+            if mod:
+                mod = mod.capitalize()
+                dmg[mod] = dmg.setdefault(mod, 0) + 1
+        else:
+            data = {
+                'Ability': ability,
+                'Max': int(dmg_data.get('Amount')),
+                'Damage': int(dmg_data.get('Amount')),
+                'Count': 1
+            }
+            if mod:
+                mod = mod.capitalize()
+                data[mod] = 1
+            self.inbound_dmg.append(data)
 
     def add_miss(self, miss_data):
         self._update_attack_time(miss_data.get('Timestamp'))
@@ -90,7 +122,7 @@ class FightMember:
         self._update_attack_time(heal_data.get('Timestamp'))
         self.totals['total_heals'] += 1
         self.totals['total_healing'] += int(heal_data.get('Amount')[0])
-        self.totals['total_over_healing'] += int(heal_data.get('Amount')[1])
+        self.totals['total_over_healing'] += (int(heal_data.get('Amount')[1]) - int(heal_data.get('Amount')[0]))
         if heal_data.get('Ability')[0].isupper():
             ability = heal_data.get('Ability')
         else:
@@ -104,7 +136,7 @@ class FightMember:
             if int(actual_heal) > heal['Max']:
                 heal['Max'] = int(actual_heal)
             heal['Actual'] += int(actual_heal)
-            heal['Overage'] += int(max_heal)
+            heal['Overage'] += (int(max_heal) - int(actual_heal))
             heal['Count'] += 1
             if mod:
                 mod = mod.capitalize()
@@ -116,7 +148,7 @@ class FightMember:
                 'Ability': ability,
                 'Max': int(actual_heal),
                 'Actual': int(actual_heal),
-                'Overage': int(max_heal),
+                'Overage': (int(max_heal) - int(actual_heal)),
                 'Count': 1
             }
             if mod:
@@ -124,32 +156,39 @@ class FightMember:
                 data[mod] = 1
             self.outbound_heals.append(data)
 
+    def add_healing(self, healing_data):
+        pass
+
     def add_death(self, death_data):
         self._update_attack_time(death_data.get('Timestamp'))
         self.totals['total_deaths'] += 1
 
     def get_fight_data(self):
-        index = ['Name', 'Class', 'Level', 'Duration', 'Death Count',
-                 'Total Damage', 'Total Hits', 'Total Misses', 'Total Heals',
-                 'Total Actual Healing', 'Total Over Healing']
+        index = ['Name', 'Class', 'Level', 'Duration',
+                 'Total Damage (Outbound)', 'Total Hits', 'Total Misses',
+                 'Total Heals', 'Total Actual Healing', 'Total Healing Overage',
+                 'Total Damage (Inbound)', 'Death Count'
+        ]
         data = [
             self.name,
             self.char_class,
             self.level,
             int(self._get_duration()),
-            self.totals.get('total_deaths'),
-            self.totals.get('total_dmg'),
+            self.totals.get('total_outbound_dmg'),
             self.totals.get('total_hits'),
             self.totals.get('total_misses'),
             self.totals.get('total_heals'),
             self.totals.get('total_healing'),
-            self.totals.get('total_over_healing')
+            self.totals.get('total_over_healing'),
+            self.totals.get('total_inbound_dmg'),
+            self.totals.get('total_deaths'),
         ]
         return {
             'data': pd.DataFrame(data, index=index).fillna(0, downcast='infer'),
             'hits': pd.DataFrame(self.outbound_dmg).fillna(0, downcast='infer'),
             'misses': pd.DataFrame(self.outbound_misses).fillna(0, downcast='infer'),
-            'heals': pd.DataFrame(self.outbound_heals).fillna(0, downcast='infer')
+            'heals': pd.DataFrame(self.outbound_heals).fillna(0, downcast='infer'),
+            'damage': pd.DataFrame(self.inbound_dmg).fillna(0, downcast='infer')
         }
 
     def _update_attack_time(self, timestamp):
