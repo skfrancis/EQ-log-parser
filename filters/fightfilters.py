@@ -6,6 +6,16 @@ from PySide6.QtWidgets import QHeaderView
 ResizeToContents = QHeaderView.ResizeToContents
 
 
+def update_miss_data(data):
+    if 'parries' in data:
+        data = 'parry'
+    if 'blocks with' in data:
+        data = 'block'
+    if 'magical skin absorbs' in data:
+        data = 'magical skin'
+    return data
+
+
 def display_data(data):
     pprint(data)
 
@@ -97,8 +107,8 @@ class NonSpellFilter:
                 parsed_data = {
                     self.columns[0]: timestamp,
                     self.columns[1]: result.group('source').replace('YOUR', 'You'),
-                    self.columns[2]: result.group('target').replace('YOU', 'You'),
-                    self.columns[3]: result.group('amount'),
+                    self.columns[2]: result.group('target').capitalize(),
+                    self.columns[3]: update_miss_data(result.group('amount')),
                     self.columns[4]: result.group('dmgtype'),
                     self.columns[5]: result.group('dmgmod'),
                     self.columns[6]: filter_type,
@@ -134,7 +144,7 @@ class SpellFilter:
                 parsed_data = {
                     self.columns[0]: timestamp,
                     self.columns[1]: result.group('source').replace('YOUR', 'You'),
-                    self.columns[2]: result.group('target').replace('YOU', 'You'),
+                    self.columns[2]: result.group('target').capitalize(),
                     self.columns[3]: result.group('amount'),
                     self.columns[4]: result.group('spell'),
                     self.columns[5]: result.group('dmgmod'),
@@ -165,7 +175,7 @@ class HealingFilter:
                 parsed_data = {
                     self.columns[0]: timestamp,
                     self.columns[1]: result.group('source').replace('YOUR', 'You'),
-                    self.columns[2]: result.group('target').replace('YOU', 'You'),
+                    self.columns[2]: result.group('target').capitalize(),
                     self.columns[3]: (result.group('actual'), maximum),
                     self.columns[4]: result.group('spell'),
                     self.columns[5]: result.group('healmod'),

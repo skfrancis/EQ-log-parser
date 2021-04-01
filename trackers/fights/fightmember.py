@@ -7,13 +7,14 @@ class FightMember:
         self.char_class = char_class
         self.level = level
         self.totals = {
-            'total_hits': 0,
             'total_outbound_dmg': 0,
+            'total_hits': 0,
             'total_misses': 0,
             'total_inbound_dmg': 0,
             'total_heals': 0,
             'total_healing': 0,
             'total_over_healing': 0,
+            'total_healed': 0,
             'total_deaths': 0
         }
         self.outbound_dmg = []
@@ -31,7 +32,7 @@ class FightMember:
         return self.name
 
     def add_hit(self, hit_data):
-        self._update_attack_time(hit_data.get('Timestamp'))
+        self._update_participation_time(hit_data.get('Timestamp'))
         self.totals['total_hits'] += 1
         self.totals['total_outbound_dmg'] += int(hit_data.get('Amount'))
         if hit_data.get('Ability')[0].isupper():
@@ -62,7 +63,7 @@ class FightMember:
             self.outbound_dmg.append(data)
 
     def add_damage(self, dmg_data):
-        self._update_attack_time(dmg_data.get('Timestamp'))
+        self._update_participation_time(dmg_data.get('Timestamp'))
         self.totals['total_inbound_dmg'] += int(dmg_data.get('Amount'))
         if dmg_data.get('Ability')[0].isupper():
             ability = dmg_data.get('Ability')
@@ -92,7 +93,7 @@ class FightMember:
             self.inbound_dmg.append(data)
 
     def add_miss(self, miss_data):
-        self._update_attack_time(miss_data.get('Timestamp'))
+        self._update_participation_time(miss_data.get('Timestamp'))
         self.totals['total_misses'] += 1
         if miss_data.get('Ability')[0].isupper():
             ability = miss_data.get('Ability')
@@ -119,7 +120,7 @@ class FightMember:
             })
 
     def add_heal(self, heal_data):
-        self._update_attack_time(heal_data.get('Timestamp'))
+        self._update_participation_time(heal_data.get('Timestamp'))
         self.totals['total_heals'] += 1
         self.totals['total_healing'] += int(heal_data.get('Amount')[0])
         self.totals['total_over_healing'] += (int(heal_data.get('Amount')[1]) - int(heal_data.get('Amount')[0]))
@@ -156,18 +157,45 @@ class FightMember:
                 data[mod] = 1
             self.outbound_heals.append(data)
 
-    def add_healing(self, healing_data):
-        pass
+    def add_healing(self, healed_data):
+        self._update_participation_time(healed_data.get('Timestamp'))
+        self.totals['total_healed'] += int(healed_data.get('Amount')[0])
+        if healed_data.get('Ability')[0].isupper():
+            ability = healed_data.get('Ability')
+        else:
+            ability = healed_data.get('Ability').capitalize()
+        mod = healed_data.get('mod')
+        if any(heal['Ability'] for heal in self.inbound_heals if ability == heal['Ability']):
+            index = [i for i, heal in enumerate(self.inbound_heals) if ability == heal['Ability']]
+            heal = self.inbound_heals[index[0]]
+            actual_heal = healed_data.get('Amount')[0]
+            heal['Actual'] += int(actual_heal)
+            heal['Count'] += 1
+            if mod:
+                mod = mod.capitalize()
+                heal[mod] = heal.setdefault(mod, 0) + 1
+        else:
+            actual_heal = healed_data.get('Amount')[0]
+            data = {
+                'Ability': ability,
+                'Max': int(actual_heal),
+                'Actual': int(actual_heal),
+                'Count': 1
+            }
+            if mod:
+                mod = mod.capitalize()
+                data[mod] = 1
+            self.inbound_heals.append(data)
 
     def add_death(self, death_data):
-        self._update_attack_time(death_data.get('Timestamp'))
+        self._update_participation_time(death_data.get('Timestamp'))
         self.totals['total_deaths'] += 1
 
     def get_fight_data(self):
         index = ['Name', 'Class', 'Level', 'Duration',
-                 'Total Damage (Outbound)', 'Total Hits', 'Total Misses',
-                 'Total Heals', 'Total Actual Healing', 'Total Healing Overage',
-                 'Total Damage (Inbound)', 'Death Count'
+                 'Total Damage (OB)', 'Total Hits (OB)', 'Total Misses (OB)',
+                 'Total Heals (OB)', 'Total Actual Healing (OB)', 'Total Healing Overage (OB)',
+                 'Total Damage (IB)', 'Total Healing (IB)', 'Death Count'
         ]
         data = [
             self.name,
@@ -181,6 +209,7 @@ class FightMember:
             self.totals.get('total_healing'),
             self.totals.get('total_over_healing'),
             self.totals.get('total_inbound_dmg'),
+            self.totals.get('total_healed'),
             self.totals.get('total_deaths'),
         ]
         return {
@@ -188,18 +217,19 @@ class FightMember:
             'hits': pd.DataFrame(self.outbound_dmg).fillna(0, downcast='infer'),
             'misses': pd.DataFrame(self.outbound_misses).fillna(0, downcast='infer'),
             'heals': pd.DataFrame(self.outbound_heals).fillna(0, downcast='infer'),
-            'damage': pd.DataFrame(self.inbound_dmg).fillna(0, downcast='infer')
+            'damage': pd.DataFrame(self.inbound_dmg).fillna(0, downcast='infer'),
+            'healing': pd.DataFrame(self.inbound_heals).fillna(0, downcast='infer')
         }
 
-    def _update_attack_time(self, timestamp):
+    def _update_participation_time(self, timestamp):
         if not self.duration.get('first_attack'):
             self.duration['first_attack'] = timestamp
         self.duration['final_attack'] = timestamp
 
     def _get_duration(self):
+        duration = 1
         if self.duration.get('final_attack') and self.duration.get('first_attack'):
-            duration = self.duration.get('final_attack') - self.duration.get('first_attack')
-            duration = duration.total_seconds()
-            return duration if int(duration) > 0 else 1
-        else:
-            return 1
+            actual_duration = self.duration.get('final_attack') - self.duration.get('first_attack')
+            actual_duration = actual_duration.total_seconds()
+            duration = actual_duration if int(actual_duration) > duration else duration
+        return duration
