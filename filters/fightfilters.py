@@ -71,8 +71,8 @@ class DeathFilter:
                 timestamp = log_line.get('timestamp')
                 parsed_data = {
                     self.columns[0]: timestamp,
-                    self.columns[1]: result.group('source'),
-                    self.columns[2]: result.group('target'),
+                    self.columns[1]: capwords(result.group('source')),
+                    self.columns[2]: capwords(result.group('target')),
                     self.columns[3]: None,
                     self.columns[4]: None,
                     self.columns[5]: None,
@@ -108,8 +108,8 @@ class NonSpellFilter:
                 timestamp = log_line.get('timestamp')
                 parsed_data = {
                     self.columns[0]: timestamp,
-                    self.columns[1]: result.group('source').replace('YOUR', 'You'),
-                    self.columns[2]: result.group('target').capitalize(),
+                    self.columns[1]: capwords(result.group('source').replace('YOUR', 'You')),
+                    self.columns[2]: capwords(result.group('target')),
                     self.columns[3]: capwords(update_miss_data(result.group('amount'))),
                     self.columns[4]: capwords(result.group('dmgtype')),
                     self.columns[5]: mod,
@@ -146,8 +146,8 @@ class SpellFilter:
                 timestamp = log_line.get('timestamp')
                 parsed_data = {
                     self.columns[0]: timestamp,
-                    self.columns[1]: result.group('source').replace('YOUR', 'You'),
-                    self.columns[2]: result.group('target').capitalize(),
+                    self.columns[1]: capwords(result.group('source').replace('YOUR', 'You')),
+                    self.columns[2]: capwords(result.group('target')),
                     self.columns[3]: capwords(result.group('amount')),
                     self.columns[4]: result.group('spell'),
                     self.columns[5]: mod,
@@ -178,8 +178,8 @@ class HealingFilter:
                 mod = capwords(result.group('mod')) if result.group('mod') is not None else result.group('mod')
                 parsed_data = {
                     self.columns[0]: timestamp,
-                    self.columns[1]: result.group('source').replace('YOUR', 'You'),
-                    self.columns[2]: result.group('target').capitalize(),
+                    self.columns[1]: capwords(result.group('source').replace('YOUR', 'You')),
+                    self.columns[2]: capwords(result.group('target')),
                     self.columns[3]: (result.group('actual'), maximum),
                     self.columns[4]: result.group('spell'),
                     self.columns[5]: mod,

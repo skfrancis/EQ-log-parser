@@ -31,7 +31,7 @@ class FightMember:
         self.pet = None
         self.debug = []
 
-    def get_member_name(self):
+    def get_name(self):
         return self.name
 
     def add_hit(self, hit_data):
