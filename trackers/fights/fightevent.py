@@ -1,13 +1,12 @@
-import datetime
 from uuid import uuid4
 
 from trackers.fights.fightmember import FightMember
 
 
 class FightEvent:
-    def __init__(self, target):
-        self.start_time = datetime.datetime.now()
-        self.end_time = datetime.datetime.now()
+    def __init__(self, target, start_time):
+        self.start_time = start_time
+        self.end_time = start_time
         self.uuid = str(uuid4())
         self.target = FightMember(target)
         self.members = [self.target]
@@ -16,7 +15,7 @@ class FightEvent:
         return self.target
 
     def parse_event(self, event_data):
-        self.end_time = datetime.datetime.now()
+        self.end_time = event_data.get('Timestamp')
         source = self.get_fight_member(event_data.get('Source'))
         target = self.get_fight_member(event_data.get('Target'))
 
