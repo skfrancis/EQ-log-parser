@@ -30,7 +30,7 @@ class FightEvent:
             source.add_heal(event_data)
             target.add_healing(event_data)
         elif event_data.get('Type') == 'death':
-            if target.get_name().lower() == self.target.get_name().lower():
+            if target.get_name() == self.target.get_name():
                 target.add_death(event_data)
                 return self.complete_fight()
             else:
@@ -38,8 +38,8 @@ class FightEvent:
         return None
 
     def get_fight_member(self, fight_member):
-        if any(member.get_name() for member in self.members if fight_member.lower() == member.get_name().lower()):
-            index = [i for i, member in enumerate(self.members) if fight_member.lower() == member.get_name().lower()]
+        if any(member.get_name() for member in self.members if fight_member == member.get_name()):
+            index = [i for i, member in enumerate(self.members) if fight_member == member.get_name()]
             return self.members[index[0]]
         else:
             new_member = FightMember(fight_member)
